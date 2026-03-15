@@ -7,833 +7,126 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0f;
-    --bg2: #11111a;
-    --bg3: #1a1a28;
-    --gold: #c9a84c;
-    --gold2: #e8c97a;
-    --gold-dim: rgba(201,168,76,0.15);
-    --text: #e8e4d8;
-    --text-dim: #8a8478;
-    --accent: #7b5ea7;
-    --accent2: #a07fd4;
-    --red: #c94c4c;
-    --border: rgba(201,168,76,0.2);
-    --radius: 16px;
+    --bg: #0a0a0f; --bg2: #11111a; --bg3: #1a1a28;
+    --gold: #c9a84c; --gold2: #e8c97a; --gold-dim: rgba(201,168,76,0.15);
+    --text: #e8e4d8; --text-dim: #8a8478; --accent: #7b5ea7; --accent2: #a07fd4;
+    --red: #c94c4c; --border: rgba(201,168,76,0.2); --radius: 16px;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* 배경 별빛 효과 */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse at 20% 20%, rgba(123,94,167,0.08) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 0 20px 80px;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* 헤더 */
-  .header {
-    text-align: center;
-    padding: 48px 0 32px;
-  }
-
-  .header-symbol {
-    font-size: 40px;
-    margin-bottom: 12px;
-    display: block;
-    animation: float 4s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
-  }
-
-  .header h1 {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--gold2);
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-
-  .header p {
-    font-size: 13px;
-    color: var(--text-dim);
-    letter-spacing: 0.5px;
-    line-height: 1.6;
-  }
-
-  /* 구분선 */
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 24px 0;
-  }
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-  .divider span {
-    font-size: 16px;
-    color: var(--gold);
-    opacity: 0.6;
-  }
-
-  /* 카드 */
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-
-  .card-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 14px;
-    color: var(--gold);
-    letter-spacing: 1px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* 입력 폼 */
-  .form-group {
-    margin-bottom: 16px;
-  }
-
-  .form-label {
-    font-size: 12px;
-    color: var(--text-dim);
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-    display: block;
-  }
-
-  .form-input, .form-select, .form-textarea {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: var(--text);
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px var(--gold-dim);
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse at 20% 20%, rgba(123,94,167,0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.06) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+  .container { max-width: 480px; margin: 0 auto; padding: 0 20px 80px; position: relative; z-index: 1; }
+  .header { text-align: center; padding: 48px 0 32px; }
+  .header-symbol { font-size: 40px; margin-bottom: 12px; display: block; animation: float 4s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .header h1 { font-family: 'Noto Serif KR', serif; font-size: 26px; font-weight: 700; color: var(--gold2); letter-spacing: 2px; margin-bottom: 8px; }
+  .header p { font-size: 13px; color: var(--text-dim); letter-spacing: 0.5px; line-height: 1.6; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+  .card-title { font-family: 'Noto Serif KR', serif; font-size: 14px; color: var(--gold); letter-spacing: 1px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+  .form-input, .form-select, .form-textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; -webkit-appearance: none; }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-dim); }
   .form-select option { background: var(--bg3); }
-
-  .form-textarea {
-    resize: none;
-    height: 90px;
-    line-height: 1.6;
-  }
-
-  /* 날짜 행 */
-  .date-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-
-  /* 성별 선택 */
-  .gender-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .gender-btn {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    color: var(--text-dim);
-    font-size: 14px;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .gender-btn.active {
-    background: var(--gold-dim) !important;
-    border-color: var(--gold) !important;
-    color: var(--gold2) !important;
-    font-weight: 600;
-  }
-
-  /* 버튼 */
-  .btn-primary {
-    width: 100%;
-    background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
-    border: none;
-    border-radius: 12px;
-    padding: 16px;
-    color: #1a1200;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(201,168,76,0.3);
-  }
-
-  .btn-primary:active { transform: translateY(0); }
-
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* === 로딩 화면 === */
-  #screen-loading {
-    display: none;
-    text-align: center;
-    padding: 60px 0;
-  }
-
-  .loading-symbol {
-    font-size: 48px;
-    display: block;
-    margin-bottom: 24px;
-    animation: spin-slow 8s linear infinite;
-  }
-
-  @keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .loading-text {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    color: var(--gold);
-    margin-bottom: 8px;
-  }
-
-  .loading-sub {
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
-  .loading-bar {
-    width: 200px;
-    height: 2px;
-    background: var(--bg3);
-    border-radius: 2px;
-    margin: 20px auto 0;
-    overflow: hidden;
-  }
-
-  .loading-bar-inner {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-    border-radius: 2px;
-    animation: loading 2.5s ease-in-out infinite;
-  }
-
-  @keyframes loading {
-    0% { width: 0%; margin-left: 0; }
-    50% { width: 70%; margin-left: 0; }
-    100% { width: 0%; margin-left: 100%; }
-  }
-
-  /* === 결과 화면 === */
+  .form-textarea { resize: none; height: 90px; line-height: 1.6; }
+  .date-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .gender-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .gender-btn { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px; color: var(--text-dim); font-size: 14px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .gender-btn.active { background: var(--gold-dim) !important; border-color: var(--gold) !important; color: var(--gold2) !important; font-weight: 600; }
+  .btn-primary { width: 100%; background: linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%); border: none; border-radius: 12px; padding: 16px; color: #1a1200; font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  #screen-loading { display: none; text-align: center; padding: 60px 0; }
+  .loading-symbol { font-size: 48px; display: block; margin-bottom: 24px; animation: spin-slow 8s linear infinite; }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .loading-text { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--gold); margin-bottom: 8px; }
+  .loading-sub { font-size: 12px; color: var(--text-dim); }
+  .loading-bar { width: 200px; height: 2px; background: var(--bg3); border-radius: 2px; margin: 20px auto 0; overflow: hidden; }
+  .loading-bar-inner { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 2px; animation: loading 2.5s ease-in-out infinite; }
+  @keyframes loading { 0% { width: 0%; margin-left: 0; } 50% { width: 70%; margin-left: 0; } 100% { width: 0%; margin-left: 100%; } }
   #screen-result { display: none; }
-
-  .result-header {
-    text-align: center;
-    padding: 32px 0 24px;
-  }
-
-  .result-name {
-    font-size: 13px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-  }
-
-  .result-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 22px;
-    color: var(--gold2);
-    font-weight: 700;
-    line-height: 1.4;
-    margin-bottom: 16px;
-  }
-
-  /* 사주 원국 배지 */
-  .saju-pillars {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 20px;
-  }
-
-  .pillar {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 12px;
-    text-align: center;
-    min-width: 48px;
-  }
-
-  .pillar-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-bottom: 4px;
-  }
-
-  .pillar-char {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 20px;
-    color: var(--gold);
-    display: block;
-    line-height: 1.2;
-  }
-
-  .pillar-char2 {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    color: var(--text-dim);
-    display: block;
-  }
-
-  /* 무료 분석 결과 */
-  .free-result {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-
-  .free-tag {
-    display: inline-block;
-    background: var(--gold-dim);
-    border: 1px solid var(--gold);
-    border-radius: 20px;
-    padding: 3px 12px;
-    font-size: 11px;
-    color: var(--gold);
-    letter-spacing: 1px;
-    margin-bottom: 14px;
-  }
-
-  .free-result-text {
-    font-size: 15px;
-    line-height: 1.9;
-    color: var(--text);
-    white-space: pre-line;
-  }
-
-  .streaming-cursor {
-    display: inline-block;
-    width: 2px;
-    height: 16px;
-    background: var(--gold);
-    margin-left: 2px;
-    vertical-align: middle;
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
-
-  /* 프리미엄 후킹 */
-  .hook-section {
-    display: none;
-    margin-top: 8px;
-  }
-
-  .hook-card {
-    background: linear-gradient(135deg, #1a1228 0%, #0f0f1e 100%);
-    border: 1px solid rgba(123,94,167,0.4);
-    border-radius: var(--radius);
-    padding: 28px 24px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hook-card::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 120px; height: 120px;
-    background: radial-gradient(circle, rgba(123,94,167,0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hook-eyebrow {
-    font-size: 11px;
-    color: var(--accent2);
-    letter-spacing: 2px;
-    margin-bottom: 10px;
-  }
-
-  .hook-headline {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-
-  .hook-headline em {
-    color: var(--gold2);
-    font-style: normal;
-  }
-
-  .hook-body {
-    font-size: 13px;
-    color: var(--text-dim);
-    line-height: 1.8;
-    margin-bottom: 20px;
-  }
-
-  /* 목차 */
-  .toc-list {
-    list-style: none;
-    margin-bottom: 20px;
-  }
-
-  .toc-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    font-size: 13px;
-  }
-
+  .result-header { text-align: center; padding: 32px 0 24px; }
+  .result-name { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+  .result-title { font-family: 'Noto Serif KR', serif; font-size: 22px; color: var(--gold2); font-weight: 700; line-height: 1.4; margin-bottom: 16px; }
+  .saju-pillars { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+  .pillar { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 48px; }
+  .pillar-label { font-size: 10px; color: var(--text-dim); margin-bottom: 4px; }
+  .pillar-char { font-family: 'Noto Serif KR', serif; font-size: 20px; color: var(--gold); display: block; line-height: 1.2; }
+  .pillar-char2 { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-dim); display: block; }
+  .free-result { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+  .free-tag { display: inline-block; background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-bottom: 14px; }
+  .free-result-text { font-size: 15px; line-height: 1.9; color: var(--text); white-space: pre-line; }
+  .streaming-cursor { display: inline-block; width: 2px; height: 16px; background: var(--gold); margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .hook-section { display: none; margin-top: 8px; }
+  .hook-card { background: linear-gradient(135deg, #1a1228 0%, #0f0f1e 100%); border: 1px solid rgba(123,94,167,0.4); border-radius: var(--radius); padding: 28px 24px; margin-bottom: 16px; position: relative; overflow: hidden; }
+  .hook-eyebrow { font-size: 11px; color: var(--accent2); letter-spacing: 2px; margin-bottom: 10px; }
+  .hook-headline { font-family: 'Noto Serif KR', serif; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+  .hook-headline em { color: var(--gold2); font-style: normal; }
+  .hook-body { font-size: 13px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
+  .toc-list { list-style: none; margin-bottom: 20px; }
+  .toc-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
   .toc-item:last-child { border-bottom: none; }
-
-  .toc-lock {
-    font-size: 14px;
-    flex-shrink: 0;
-    opacity: 0.6;
-  }
-
-  .toc-num {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 11px;
-    color: var(--gold);
-    min-width: 54px;
-    flex-shrink: 0;
-  }
-
-  .toc-text {
-    color: var(--text-dim);
-    flex: 1;
-    line-height: 1.4;
-  }
-
-  /* 분량 배지 */
-  .volume-badge {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .volume-label {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 6px;
-  }
-
-  .volume-num {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    color: var(--gold2);
-    font-weight: 600;
-    margin-bottom: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .volume-price {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 28px;
-    color: var(--gold2);
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  .volume-price span {
-    font-size: 14px;
-    color: var(--text-dim);
-    font-weight: 400;
-    font-family: 'Noto Sans KR', sans-serif;
-    margin-left: 4px;
-  }
-
-  /* 흐림 미리보기 */
-  .blur-preview {
-    background: var(--bg3);
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .blur-preview-text {
-    font-size: 13px;
-    line-height: 1.9;
-    color: var(--text-dim);
-    filter: blur(4px);
-    user-select: none;
-    pointer-events: none;
-  }
-
-  .blur-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 0%, var(--bg3) 70%);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 12px;
-  }
-
-  .blur-overlay-text {
-    font-size: 12px;
-    color: var(--text-dim);
-    letter-spacing: 0.5px;
-  }
-
-  /* 결제 버튼 */
-  .btn-premium {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent) 0%, #9b6fd4 100%);
-    border: none;
-    border-radius: 12px;
-    padding: 18px;
-    color: #fff;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-
-  .btn-premium:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(123,94,167,0.4);
-  }
-
-  .btn-premium-sub {
-    display: block;
-    font-size: 12px;
-    opacity: 0.8;
-    margin-top: 3px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-weight: 400;
-  }
-
-  /* === 프리미엄 결과 화면 === */
+  .toc-num { font-family: 'Noto Serif KR', serif; font-size: 11px; color: var(--gold); min-width: 54px; flex-shrink: 0; }
+  .toc-text { color: var(--text-dim); flex: 1; line-height: 1.4; }
+  .volume-badge { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 20px; }
+  .volume-num { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--gold2); font-weight: 600; margin-bottom: 8px; }
+  .volume-price { font-family: 'Noto Serif KR', serif; font-size: 28px; color: var(--gold2); font-weight: 700; letter-spacing: 1px; }
+  .volume-price span { font-size: 14px; color: var(--text-dim); font-weight: 400; font-family: 'Noto Sans KR', sans-serif; margin-left: 4px; }
+  .blur-preview { background: var(--bg3); border-radius: 10px; padding: 16px; margin-bottom: 20px; position: relative; overflow: hidden; }
+  .blur-preview-text { font-size: 13px; line-height: 1.9; color: var(--text-dim); filter: blur(4px); user-select: none; pointer-events: none; }
+  .blur-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, var(--bg3) 70%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+  .blur-overlay-text { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; }
+  .btn-premium { width: 100%; background: linear-gradient(135deg, var(--accent) 0%, #9b6fd4 100%); border: none; border-radius: 12px; padding: 18px; color: #fff; font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; }
+  .btn-premium:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(123,94,167,0.4); }
+  .btn-premium-sub { display: block; font-size: 12px; opacity: 0.8; margin-top: 3px; font-family: 'Noto Sans KR', sans-serif; font-weight: 400; }
   #screen-premium { display: none; }
-
-  .premium-header {
-    text-align: center;
-    padding: 32px 0 20px;
-  }
-
-  .premium-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: linear-gradient(135deg, var(--accent), #9b6fd4);
-    border-radius: 20px;
-    padding: 6px 16px;
-    font-size: 12px;
-    color: #fff;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
-
-  .premium-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--gold2);
-    line-height: 1.4;
-  }
-
-  /* 파트 카드 */
-  .part-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-
-  .part-header {
-    background: linear-gradient(90deg, var(--bg3), var(--bg2));
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .part-num {
-    background: var(--gold-dim);
-    border: 1px solid var(--gold);
-    border-radius: 6px;
-    padding: 2px 8px;
-    font-size: 11px;
-    color: var(--gold);
-    font-family: 'Noto Serif KR', serif;
-    flex-shrink: 0;
-  }
-
-  .part-title-text {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 14px;
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  .part-status {
-    margin-left: auto;
-    font-size: 12px;
-    color: var(--text-dim);
-    flex-shrink: 0;
-  }
-
+  .premium-header { text-align: center; padding: 32px 0 20px; }
+  .premium-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, var(--accent), #9b6fd4); border-radius: 20px; padding: 6px 16px; font-size: 12px; color: #fff; letter-spacing: 1px; margin-bottom: 12px; }
+  .premium-title { font-family: 'Noto Serif KR', serif; font-size: 20px; font-weight: 700; color: var(--gold2); line-height: 1.4; }
+  .part-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; overflow: hidden; }
+  .part-header { background: linear-gradient(90deg, var(--bg3), var(--bg2)); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 10px; }
+  .part-num { background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--gold); font-family: 'Noto Serif KR', serif; flex-shrink: 0; }
+  .part-title-text { font-family: 'Noto Serif KR', serif; font-size: 14px; color: var(--text); font-weight: 600; }
+  .part-status { margin-left: auto; font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
   .part-status.done { color: var(--gold); }
-
-  .part-content {
-    padding: 20px;
-    font-size: 14px;
-    line-height: 1.9;
-    color: var(--text);
-    white-space: pre-line;
-    display: none;
-  }
-
+  .part-content { padding: 20px; font-size: 14px; line-height: 1.9; color: var(--text); white-space: pre-line; display: none; }
   .part-content.visible { display: block; }
-
-  /* 공유 버튼 */
-  .share-section {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-top: 24px;
-    text-align: center;
-  }
-
-  .share-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 14px;
-    color: var(--gold);
-    margin-bottom: 6px;
-  }
-
-  .share-desc {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-    line-height: 1.6;
-  }
-
-  .share-btns {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .btn-share {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 16px;
-    color: var(--text);
-    font-size: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .btn-share:hover {
-    background: var(--gold-dim);
-    border-color: var(--gold);
-    color: var(--gold2);
-  }
-
-  .share-copied {
-    font-size: 12px;
-    color: var(--gold);
-    margin-top: 10px;
-    height: 16px;
-    transition: opacity 0.3s;
-  }
-
-  /* 재시도 버튼 */
-  .btn-retry {
-    display: block;
-    margin: 12px 20px 16px;
-    width: calc(100% - 40px);
-    background: transparent;
-    border: 1px solid rgba(201,76,76,0.4);
-    border-radius: 8px;
-    padding: 10px;
-    color: #e88;
-    font-size: 13px;
-    font-family: 'Noto Sans KR', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-retry:hover {
-    background: rgba(201,76,76,0.1);
-    border-color: rgba(201,76,76,0.7);
-  }
-
-  .part-error-msg {
-    padding: 16px 20px;
-    font-size: 13px;
-    color: #e88;
-    line-height: 1.6;
-  }
-
-  /* 진행 상태 바 */
-  .progress-section {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: rgba(10,10,15,0.95);
-    backdrop-filter: blur(10px);
-    padding: 12px 20px;
-    border-bottom: 1px solid var(--border);
-    margin: 0 -20px 20px;
-  }
-
-  .progress-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
-  .progress-bar {
-    height: 3px;
-    background: var(--bg3);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .progress-bar-inner {
-    height: 100%;
-    background: linear-gradient(90deg, var(--gold), var(--gold2));
-    border-radius: 3px;
-    transition: width 0.5s ease;
-  }
-
-  /* 유틸 */
-  .hidden { display: none !important; }
-
+  .share-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 24px; text-align: center; }
+  .share-title { font-family: 'Noto Serif KR', serif; font-size: 14px; color: var(--gold); margin-bottom: 6px; }
+  .share-desc { font-size: 12px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+  .share-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .btn-share { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; color: var(--text); font-size: 13px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .btn-share:hover { background: var(--gold-dim); border-color: var(--gold); color: var(--gold2); }
+  .share-copied { font-size: 12px; color: var(--gold); margin-top: 10px; height: 16px; }
+  .btn-retry { display: block; margin: 12px 20px 16px; width: calc(100% - 40px); background: transparent; border: 1px solid rgba(201,76,76,0.4); border-radius: 8px; padding: 10px; color: #e88; font-size: 13px; font-family: 'Noto Sans KR', sans-serif; cursor: pointer; transition: all 0.2s; }
+  .btn-retry:hover { background: rgba(201,76,76,0.1); border-color: rgba(201,76,76,0.7); }
+  .part-error-msg { padding: 16px 20px; font-size: 13px; color: #e88; line-height: 1.6; }
+  .progress-section { position: sticky; top: 0; z-index: 10; background: rgba(10,10,15,0.95); backdrop-filter: blur(10px); padding: 12px 20px; border-bottom: 1px solid var(--border); margin: 0 -20px 20px; }
+  .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; color: var(--text-dim); }
+  .progress-bar { height: 3px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+  .progress-bar-inner { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold2)); border-radius: 3px; transition: width 0.5s ease; }
   .screen { animation: fadeIn 0.4s ease; }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* 에러 */
-  .error-msg {
-    background: rgba(201,76,76,0.1);
-    border: 1px solid rgba(201,76,76,0.3);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 13px;
-    color: #e88;
-    margin-top: 12px;
-    display: none;
-  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .error-msg { background: rgba(201,76,76,0.1); border: 1px solid rgba(201,76,76,0.3); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #e88; margin-top: 12px; display: none; }
 </style>
 </head>
 <body>
-
 <div class="container">
 
-  <!-- ===== 입력 화면 ===== -->
+  <!-- 입력 화면 -->
   <div id="screen-input" class="screen">
     <div class="header">
       <span class="header-symbol">☯</span>
       <h1>운명해킹</h1>
       <p>당신의 사주로 지금 이 고민을<br>근본부터 풀어드립니다</p>
     </div>
-
     <div class="card">
       <div class="card-title">✦ 기본 정보</div>
-
       <div class="form-group">
         <label class="form-label">이름 (선택)</label>
         <input class="form-input" id="inp-name" type="text" placeholder="홍길동">
       </div>
-
       <div class="form-group">
         <label class="form-label">생년월일</label>
         <div class="date-row">
@@ -847,7 +140,6 @@
           <input class="form-input" id="inp-day" type="number" placeholder="일" min="1" max="31">
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">태어난 시간 (모르면 건너뜀)</label>
         <select class="form-select" id="inp-hour">
@@ -866,7 +158,6 @@
           <option value="해시(21-23시)">해시 (21:00–23:00)</option>
         </select>
       </div>
-
       <div class="form-group">
         <label class="form-label">성별</label>
         <div class="gender-row">
@@ -875,23 +166,17 @@
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">✦ 지금 가장 큰 고민</div>
       <div class="form-group">
-        <textarea class="form-textarea" id="inp-concern"
-          placeholder="예: 이직을 해야 할지 말아야 할지 모르겠어요. 지금 회사를 3년 다녔는데..."></textarea>
+        <textarea class="form-textarea" id="inp-concern" placeholder="예: 이직을 해야 할지 말아야 할지 모르겠어요..."></textarea>
       </div>
     </div>
-
-    <button class="btn-primary" id="btn-analyze" onclick="startAnalysis()">
-      ☯ 무료 사주 분석 시작
-    </button>
-
+    <button class="btn-primary" id="btn-analyze" onclick="startAnalysis()">☯ 무료 사주 분석 시작</button>
     <div class="error-msg" id="error-msg"></div>
   </div>
 
-  <!-- ===== 로딩 화면 ===== -->
+  <!-- 로딩 화면 -->
   <div id="screen-loading" class="screen">
     <div style="padding-top: 80px; text-align: center;">
       <span class="loading-symbol">⊛</span>
@@ -901,185 +186,188 @@
     </div>
   </div>
 
-  <!-- ===== 결과 화면 (무료 + 후킹) ===== -->
+  <!-- 결과 화면 -->
   <div id="screen-result" class="screen">
-
     <div class="result-header">
       <div class="result-name" id="result-name-label"></div>
       <div class="result-title" id="result-title">고민에 대한<br>사주 분석 결과</div>
     </div>
-
     <div class="saju-pillars" id="saju-pillars"></div>
-
-    <!-- 무료 결과 -->
     <div class="free-result">
       <span class="free-tag">✦ 무료 분석</span>
       <div class="free-result-text" id="free-result-text">
         <span class="streaming-cursor" id="cursor1"></span>
       </div>
     </div>
-
-    <!-- 후킹 섹션 -->
     <div class="hook-section" id="hook-section">
-
       <div class="hook-card">
         <div class="hook-eyebrow">PREMIUM ANALYSIS</div>
-        <div class="hook-headline">
-          왜 이 고민이 <em>반복</em>될까요?<br>
-          당신의 운명을 <em>해킹</em>할 시간입니다
-        </div>
-        <div class="hook-body">
-          표면적인 흐름 너머, 이 고민이 반복되는 근본 원인이 사주 원국 안에 있어요.
-          지금 이 시기에 어떤 선택이 운명을 바꾸는지 — 9파트 심층 분석으로 알아보세요.
-        </div>
-
-        <!-- 목차 -->
+        <div class="hook-headline">왜 이 고민이 <em>반복</em>될까요?<br>당신의 운명을 <em>해킹</em>할 시간입니다</div>
+        <div class="hook-body">표면적인 흐름 너머, 이 고민이 반복되는 근본 원인이 사주 원국 안에 있어요. 지금 이 시기에 어떤 선택이 운명을 바꾸는지 — 9파트 심층 분석으로 알아보세요.</div>
         <ul class="toc-list" id="toc-list"></ul>
-
-        <!-- 분량 -->
         <div class="volume-badge">
           <div class="volume-num">9파트 / 약 15,000자 심층 분석</div>
           <div class="volume-price">2,900원<span>일회 결제</span></div>
         </div>
-
-        <!-- 흐림 미리보기 -->
         <div class="blur-preview">
-          <div class="blur-preview-text" id="blur-preview-text">
-            이 고민의 진짜 뿌리는 일주의 오행 불균형에서 시작됩니다. 특히 현재 대운과의 충돌이 이 시기에 유독 이 주제를 강하게 끌어올리고 있어요. 올해 세운의 흐름을 보면 결정적인 변곡점이 명확히 보이는데, 그 시기를 놓치지 않는 것이 무엇보다 중요합니다. 근본 원인을 제거하지 않으면 같은 고민은 3년 안에 더 강한 형태로 돌아올 가능성이 높습니다...
-          </div>
-          <div class="blur-overlay">
-            <span class="blur-overlay-text">🔒 프리미엄에서 전체 공개</span>
-          </div>
+          <div class="blur-preview-text">이 고민의 진짜 뿌리는 일주의 오행 불균형에서 시작됩니다. 특히 현재 대운과의 충돌이 이 시기에 유독 이 주제를 강하게 끌어올리고 있어요. 올해 세운의 흐름을 보면 결정적인 변곡점이 명확히 보이는데...</div>
+          <div class="blur-overlay"><span class="blur-overlay-text">🔒 프리미엄에서 전체 공개</span></div>
         </div>
-
-        <!-- 결제 버튼 -->
         <button class="btn-premium" onclick="startPremium()">
           운명 해킹 전체 분석 보기
           <span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>
         </button>
       </div>
-
     </div>
   </div>
 
-  <!-- ===== 프리미엄 결과 화면 ===== -->
+  <!-- 프리미엄 결과 화면 -->
   <div id="screen-premium" class="screen">
-
     <div class="premium-header">
       <div class="premium-badge">✦ PREMIUM</div>
       <div class="premium-title" id="premium-title">심층 운명 분석</div>
     </div>
-
     <div class="progress-section">
       <div class="progress-info">
         <span id="progress-label">분석 준비 중...</span>
         <span id="progress-count">0 / 9</span>
       </div>
-      <div class="progress-bar">
-        <div class="progress-bar-inner" id="progress-bar" style="width: 0%"></div>
-      </div>
+      <div class="progress-bar"><div class="progress-bar-inner" id="progress-bar" style="width: 0%"></div></div>
     </div>
-
     <div id="parts-container"></div>
-
-    <!-- 공유 섹션 (분석 완료 후 표시) -->
     <div class="share-section" id="share-section" style="display:none">
       <div class="share-title">✦ 분석 결과 간직하기</div>
-      <div class="share-desc">
-        나만의 운명 해킹 분석 결과를<br>저장하거나 공유해보세요
-      </div>
+      <div class="share-desc">나만의 운명 해킹 분석 결과를<br>저장하거나 공유해보세요</div>
       <div class="share-btns">
-        <button type="button" class="btn-share" onclick="copyToClipboard()">
-          📋 클립보드 복사
-        </button>
-        <button type="button" class="btn-share" onclick="shareKakao()">
-          💬 카카오톡 공유
-        </button>
-        <button type="button" class="btn-share" onclick="shareEmail()">
-          📧 이메일로 받기
-        </button>
+        <button type="button" class="btn-share" onclick="copyToClipboard()">📋 클립보드 복사</button>
+        <button type="button" class="btn-share" onclick="shareEmail()">📧 이메일로 받기</button>
       </div>
       <div class="share-copied" id="share-copied"></div>
     </div>
-
   </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
+// ==================== 만세력 계산 ====================
+const CHEONGAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const JIJI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const MONTH_JIJI = [2,3,4,5,6,7,8,9,10,11,0,1];
+const JEOLGI_DATA = [[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,7],[9,8],[10,8],[11,7],[12,7],[1,6]];
+const YEAR_TO_INMONTH_CG = [2,4,6,8,0,2,4,6,8,0];
+
+function getSajuMonthIndex(month, day) {
+  const yearOrder = [11,0,1,2,3,4,5,6,7,8,9,10];
+  let result = 11;
+  for (let m = 1; m <= 12; m++) {
+    const sajuIdx = yearOrder[m-1];
+    const jeolDay = JEOLGI_DATA[sajuIdx][1];
+    if (month > m || (month === m && day >= jeolDay)) result = sajuIdx;
+  }
+  return result;
+}
+
+function getYearForSaju(year, month, day) {
+  if (month < 2 || (month === 2 && day < 4)) return year - 1;
+  return year;
+}
+
+function calcYearPillar(year, month, day) {
+  const y = getYearForSaju(year, month, day);
+  const cg = ((y - 4) % 10 + 10) % 10;
+  const jj = ((y - 4) % 12 + 12) % 12;
+  return CHEONGAN[cg] + JIJI[jj];
+}
+
+function calcMonthPillar(year, month, day) {
+  const sajuMonthIdx = getSajuMonthIndex(month, day);
+  const y = getYearForSaju(year, month, day);
+  const yearCG = ((y - 4) % 10 + 10) % 10;
+  const inMonthCG = YEAR_TO_INMONTH_CG[yearCG];
+  const monthCG = (inMonthCG + sajuMonthIdx) % 10;
+  const monthJJ = MONTH_JIJI[sajuMonthIdx];
+  return CHEONGAN[monthCG] + JIJI[monthJJ];
+}
+
+function calcDayPillar(year, month, day) {
+  let y = year, m = month;
+  if (m <= 2) { y--; m += 12; }
+  const A = Math.floor(y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524;
+  const cg = ((JD + 9) % 10 + 10) % 10;
+  const jj = ((JD + 1) % 12 + 12) % 12;
+  return CHEONGAN[cg] + JIJI[jj];
+}
+
+function calcHourPillar(dayPillar, hourStr) {
+  if (!hourStr) return null;
+  const hourMap = {
+    '자시(23-01시)':0,'축시(01-03시)':1,'인시(03-05시)':2,'묘시(05-07시)':3,
+    '진시(07-09시)':4,'사시(09-11시)':5,'오시(11-13시)':6,'미시(13-15시)':7,
+    '신시(15-17시)':8,'유시(17-19시)':9,'술시(19-21시)':10,'해시(21-23시)':11
+  };
+  const hourJJ = hourMap[hourStr];
+  if (hourJJ === undefined) return null;
+  const dayCG = CHEONGAN.indexOf(dayPillar[0]);
+  const hourCG = (((dayCG % 5) * 2 + hourJJ) % 10 + 10) % 10;
+  return CHEONGAN[hourCG] + JIJI[hourJJ];
+}
+
+function calcSaju(year, month, day, hourStr) {
+  const yearPillar = calcYearPillar(year, month, day);
+  const monthPillar = calcMonthPillar(year, month, day);
+  const dayPillar = calcDayPillar(year, month, day);
+  const hourPillar = calcHourPillar(dayPillar, hourStr);
+  return { yearPillar, monthPillar, dayPillar, hourPillar };
+}
+
 // ==================== 상태 ====================
-const state = {
-  name: '', year: '', month: '', day: '', hour: '', gender: '',
-  concern: '', sajuInfo: null
-};
+const state = { name:'', year:'', month:'', day:'', hour:'', gender:'', concern:'', sajuInfo:null };
 
 const PARTS = [
-  { num: 'PART 1', title: '이 고민이 반복되는 진짜 이유' },
-  { num: 'PART 2', title: '올해 이 고민의 흐름과 결정적 타이밍' },
-  { num: 'PART 3', title: '근본 원인을 끊는 전략 3가지' },
-  { num: 'PART 4', title: '지금 당신에게 유리한 에너지와 활용법' },
-  { num: 'PART 5', title: '이 고민에서 피해야 할 함정과 반전 포인트' },
-  { num: 'PART 6', title: '인간관계와 주변 환경의 영향' },
-  { num: 'PART 7', title: '3년 이내 운명의 변곡점 예측' },
-  { num: 'PART 8', title: '월별 실행 전략 로드맵' },
-  { num: 'PART 9', title: '당신만의 운명 해킹 플레이북' },
+  { num:'PART 1', title:'이 고민이 반복되는 진짜 이유' },
+  { num:'PART 2', title:'올해 이 고민의 흐름과 결정적 타이밍' },
+  { num:'PART 3', title:'근본 원인을 끊는 전략 3가지' },
+  { num:'PART 4', title:'지금 당신에게 유리한 에너지와 활용법' },
+  { num:'PART 5', title:'이 고민에서 피해야 할 함정과 반전 포인트' },
+  { num:'PART 6', title:'인간관계와 주변 환경의 영향' },
+  { num:'PART 7', title:'3년 이내 운명의 변곡점 예측' },
+  { num:'PART 8', title:'월별 실행 전략 로드맵' },
+  { num:'PART 9', title:'당신만의 운명 해킹 플레이북' },
 ];
 
-// ==================== 화면 전환 ====================
 function showScreen(id) {
   ['screen-input','screen-loading','screen-result','screen-premium'].forEach(s => {
     document.getElementById(s).style.display = 'none';
   });
-  const el = document.getElementById(id);
-  el.style.display = 'block';
+  document.getElementById(id).style.display = 'block';
   window.scrollTo(0, 0);
 }
 
-// ==================== 성별 선택 ====================
 function selectGender(g) {
   state.gender = g;
-  const male = document.getElementById('btn-male');
-  const female = document.getElementById('btn-female');
-  if (g === '남') {
-    male.classList.add('active');
-    female.classList.remove('active');
-  } else {
-    female.classList.add('active');
-    male.classList.remove('active');
-  }
+  document.getElementById('btn-male').classList.toggle('active', g === '남');
+  document.getElementById('btn-female').classList.toggle('active', g === '여');
 }
 
-// ==================== 목차 생성 ====================
 function buildToc() {
-  const list = document.getElementById('toc-list');
-  list.innerHTML = PARTS.map(p => `
+  document.getElementById('toc-list').innerHTML = PARTS.map(p => `
     <li class="toc-item">
-      <span class="toc-lock">🔒</span>
+      <span style="font-size:14px;flex-shrink:0;opacity:0.6">🔒</span>
       <span class="toc-num">${p.num}</span>
       <span class="toc-text">${p.title}</span>
-    </li>
-  `).join('');
+    </li>`).join('');
 }
 
-// ==================== 무료 분석 시작 ====================
 async function startAnalysis() {
   const year = document.getElementById('inp-year').value.trim();
   const month = document.getElementById('inp-month').value;
   const day = document.getElementById('inp-day').value.trim();
   const concern = document.getElementById('inp-concern').value.trim();
-
-  if (!year || !month || !day) {
-    showError('생년월일을 입력해주세요.');
-    return;
-  }
-  if (!state.gender) {
-    showError('성별을 선택해주세요.');
-    return;
-  }
-  if (!concern) {
-    showError('고민을 입력해주세요.');
-    return;
-  }
+  if (!year || !month || !day) { showError('생년월일을 입력해주세요.'); return; }
+  if (!state.gender) { showError('성별을 선택해주세요.'); return; }
+  if (!concern) { showError('고민을 입력해주세요.'); return; }
 
   state.name = document.getElementById('inp-name').value.trim() || '고객';
   state.year = year; state.month = month; state.day = day;
@@ -1089,64 +377,62 @@ async function startAnalysis() {
   showScreen('screen-loading');
   animateLoading();
 
-  const prompt = buildFreePrompt();
-
-  try {
-    const result = await callClaude(prompt, 2500);
-    showFreeResult(result);
-  } catch(e) {
-    showScreen('screen-input');
-    showError('분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
-  }
-}
-
-function buildFreePrompt() {
+  // JS로 사주 계산
+  const saju = calcSaju(parseInt(year), parseInt(month), parseInt(day), state.hour);
+  const sajuText = `년주 ${saju.yearPillar}, 월주 ${saju.monthPillar}, 일주 ${saju.dayPillar}${saju.hourPillar ? ', 시주 ' + saju.hourPillar : ''}`;
+  const hourPillarJSON = saju.hourPillar ? `"${saju.hourPillar}"` : 'null';
   const hourText = state.hour ? `태어난 시간: ${state.hour}` : '태어난 시간: 모름';
-  return `당신은 날카롭고 실질적인 사주 명리학자입니다. 아래 정보를 바탕으로 의뢰인의 고민에 대한 사주 분석을 해주세요.
+
+  const prompt = `당신은 날카롭고 실질적인 사주 명리학자입니다.
 
 [의뢰인 정보]
 - 이름: ${state.name}
-- 생년월일: ${state.year}년 ${state.month}월 ${state.day}일
+- 생년월일: ${year}년 ${month}월 ${day}일
 - ${hourText}
 - 성별: ${state.gender}성
-- 고민: ${document.getElementById('inp-concern').value.trim()}
-- 현재 날짜: 2026년 3월 (올해는 2026년 丙午년, 의뢰인 나이 만 ${new Date().getFullYear() - parseInt(state.year)}세)
+- 고민: ${concern}
+- 사주원국 (이미 계산됨, 절대 바꾸지 마세요): ${sajuText}
+- 현재 날짜: 2026년 3월 (올해는 2026년 丙午년, 의뢰인 나이 만 ${new Date().getFullYear() - parseInt(year)}세)
 
 [출력 지침]
 다음 형식으로 JSON만 출력하세요. 다른 말은 절대 하지 마세요.
 
 {
   "sajuInfo": {
-    "yearPillar": "년주 천간지지 2글자 (예: 癸亥)",
-    "monthPillar": "월주 천간지지 2글자",
-    "dayPillar": "일주 천간지지 2글자",
-    "hourPillar": "시주 천간지지 2글자 또는 null",
+    "yearPillar": "${saju.yearPillar}",
+    "monthPillar": "${saju.monthPillar}",
+    "dayPillar": "${saju.dayPillar}",
+    "hourPillar": ${hourPillarJSON},
     "mainElement": "의뢰인의 주요 오행 1가지 (木/火/土/金/水 중)",
-    "title": "이 분석을 한 문장으로 압축한 제목. 의뢰인의 현재 상황과 고민을 반영하여 구체적으로 (예: '대출 만기 앞에 선 丁火, 결단이 필요한 시간')"
+    "title": "이 분석을 한 문장으로 압축한 제목"
   },
   "freeAnalysis": "아래 두 파트를 자연스럽게 이어서 작성하세요. 반드시 총 1200자 이상 1500자 이내로 작성.
 
 [파트1: 고민 진단 - 300~350자]
-이 고민이 지금 이 시기에 생긴 사주적 이유를 분석하세요. 오행과 천간지지를 구체적으로 언급하되, 전문 용어 뒤엔 반드시 쉬운 풀이를 괄호로 달아주세요. '당신은 이런 사람'이 아니라 '지금 이 고민이 왜 생겼는지'에 집중하세요.
+이 고민이 지금 이 시기에 생긴 사주적 이유를 분석하세요. 오행과 천간지지를 구체적으로 언급하되, 전문 용어 뒤엔 반드시 쉬운 풀이를 괄호로 달아주세요.
 
 [파트2: 지금 당장 쓸 수 있는 조언 1가지 - 250~350자]
-'이번 주 안에', '이번 달 안에' 처럼 시간을 특정하고, 구체적인 행동 1가지를 알려주세요. 막연한 '조심하세요'가 아니라 '이 결정은 X월 전에 내리세요, 왜냐면...' 수준으로 날카롭게. 사주 근거를 짧게 붙여서 신뢰감을 줘야 해요.
+'이번 주 안에', '이번 달 안에' 처럼 시간을 특정하고, 구체적인 행동 1가지를 알려주세요.
 
 마지막 문장: '하지만 이 조언 하나로는 부족해요. 이 고민이 반복되는 근본 이유가 따로 있거든요.' 로 자연스럽게 마무리.
-- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기. 예: 일간(日干), 편재(偏財), 대운(大運)
+- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기.
 - **볼드** 마크다운 절대 사용 금지."
 }`;
+
+  try {
+    const result = await callClaude(prompt, 2500);
+    showFreeResult(result, saju);
+  } catch(e) {
+    showScreen('screen-input');
+    showError('분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+  }
 }
 
 async function callClaude(prompt, maxTokens = 1000) {
-  // Vercel Edge Function 프록시를 통해 호출 (API 키 보호)
   const res = await fetch('/api/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    body: JSON.stringify({ max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] })
   });
   if (!res.ok) throw new Error('API error');
   const data = await res.json();
@@ -1154,95 +440,58 @@ async function callClaude(prompt, maxTokens = 1000) {
 }
 
 function parseClaudeJSON(raw) {
-  // 1단계: ```json 블록 제거 후 파싱
-  try {
-    const clean = raw.replace(/```json[\s\S]*?```/g, '').replace(/```/g, '').trim();
-    return JSON.parse(clean);
-  } catch(e) {}
-
-  // 2단계: { } 블록 추출 후 파싱
-  try {
-    const match = raw.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]);
-  } catch(e) {}
-
-  // 3단계: sajuInfo / freeAnalysis 값만 정규식으로 직접 추출
-  try {
-    const yearPillar = (raw.match(/"yearPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
-    const monthPillar = (raw.match(/"monthPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
-    const dayPillar = (raw.match(/"dayPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
-    const hourPillar = (raw.match(/"hourPillar"\s*:\s*"([^"]+)"/) || [])[1] || null;
-    const mainElement = (raw.match(/"mainElement"\s*:\s*"([^"]+)"/) || [])[1] || '';
-    const title = (raw.match(/"title"\s*:\s*"([^"]+)"/) || [])[1] || '사주 분석 결과';
-    const freeAnalysis = (raw.match(/"freeAnalysis"\s*:\s*"([\s\S]+?)"(?:\s*[,}])/) || [])[1] || raw;
-    return {
-      sajuInfo: { yearPillar, monthPillar, dayPillar, hourPillar, mainElement, title },
-      freeAnalysis: freeAnalysis.replace(/\\n/g, '\n')
-    };
-  } catch(e) {}
-
-  // 4단계: 완전 실패 — raw 텍스트 그대로
-  return {
-    sajuInfo: { yearPillar:'??', monthPillar:'??', dayPillar:'??', hourPillar: null, title:'사주 분석 결과' },
-    freeAnalysis: raw
-  };
+  try { return JSON.parse(raw.replace(/```json[\s\S]*?```/g,'').replace(/```/g,'').trim()); } catch(e) {}
+  try { const m = raw.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); } catch(e) {}
+  const title = (raw.match(/"title"\s*:\s*"([^"]+)"/) || [])[1] || '사주 분석 결과';
+  const freeAnalysis = (raw.match(/"freeAnalysis"\s*:\s*"([\s\S]+?)"(?:\s*[,}])/) || [])[1] || raw;
+  return { sajuInfo: { title }, freeAnalysis: freeAnalysis.replace(/\\n/g,'\n') };
 }
 
-function showFreeResult(raw) {
+function showFreeResult(raw, saju) {
   const parsed = parseClaudeJSON(raw);
+  // JS로 계산한 사주를 사용 (Claude가 바꾸더라도 무시)
+  state.sajuInfo = { ...saju, title: parsed.sajuInfo?.title || '사주 분석 결과' };
 
-  state.sajuInfo = parsed.sajuInfo;
-
-  // 사주 기둥
   const pillarsEl = document.getElementById('saju-pillars');
-  const ps = parsed.sajuInfo;
   const pillars = [
-    { label: '년주', val: ps.yearPillar },
-    { label: '월주', val: ps.monthPillar },
-    { label: '일주', val: ps.dayPillar },
+    { label:'년주', val: saju.yearPillar },
+    { label:'월주', val: saju.monthPillar },
+    { label:'일주', val: saju.dayPillar },
   ];
-  if (ps.hourPillar) pillars.push({ label: '시주', val: ps.hourPillar });
-
+  if (saju.hourPillar) pillars.push({ label:'시주', val: saju.hourPillar });
   pillarsEl.innerHTML = pillars.map(p => `
     <div class="pillar">
       <div class="pillar-label">${p.label}</div>
-      <span class="pillar-char">${p.val ? p.val[0] : '?'}</span>
-      <span class="pillar-char2">${p.val ? p.val[1] : '?'}</span>
-    </div>
-  `).join('');
+      <span class="pillar-char">${p.val[0]}</span>
+      <span class="pillar-char2">${p.val[1]}</span>
+    </div>`).join('');
 
   document.getElementById('result-name-label').textContent = `${state.name}님의 사주 분석`;
-  document.getElementById('result-title').textContent = ps.title || '사주 분석 결과';
+  document.getElementById('result-title').textContent = state.sajuInfo.title;
 
   showScreen('screen-result');
   buildToc();
 
-  // 스트리밍 효과로 텍스트 출력 (** 마크다운 제거)
-  const cleanedAnalysis = parsed.freeAnalysis
-    .replace(/\*\*([^*]+)\*\*/g, '$1')
-    .replace(/\*([^*]+)\*/g, '$1');
+  const cleanedAnalysis = (parsed.freeAnalysis || '')
+    .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
   streamText('free-result-text', 'cursor1', cleanedAnalysis, () => {
     document.getElementById('hook-section').style.display = 'block';
-    document.getElementById('hook-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('hook-section').scrollIntoView({ behavior:'smooth', block:'start' });
   });
 }
 
-// 스트리밍 타이핑 효과
 function streamText(targetId, cursorId, text, onDone) {
   const el = document.getElementById(targetId);
   const cursor = document.getElementById(cursorId);
   let i = 0;
   el.innerHTML = '';
   el.appendChild(cursor);
-
   const interval = setInterval(() => {
     if (i < text.length) {
       const span = document.createElement('span');
       span.textContent = text[i];
       el.insertBefore(span, cursor);
       i++;
-      // 3글자마다 스크롤
-      if (i % 3 === 0) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
       clearInterval(interval);
       cursor.style.display = 'none';
@@ -1251,169 +500,55 @@ function streamText(targetId, cursorId, text, onDone) {
   }, 20);
 }
 
-// ==================== 로딩 문구 ====================
-const loadingTexts = [
-  '천간지지를 분석하는 중...',
-  '오행의 균형을 파악하는 중...',
-  '대운의 흐름을 읽는 중...',
-  '고민과 사주를 연결하는 중...',
-];
-
+const loadingTexts = ['천간지지를 분석하는 중...','오행의 균형을 파악하는 중...','대운의 흐름을 읽는 중...','고민과 사주를 연결하는 중...'];
 function animateLoading() {
   let i = 0;
   const el = document.getElementById('loading-text');
   el.textContent = loadingTexts[0];
-  const iv = setInterval(() => {
-    i = (i + 1) % loadingTexts.length;
-    el.textContent = loadingTexts[i];
-  }, 1800);
-  window._loadingInterval = iv;
+  window._loadingInterval = setInterval(() => { i = (i+1) % loadingTexts.length; el.textContent = loadingTexts[i]; }, 1800);
 }
 
-// ==================== 프리미엄 분석 ====================
 async function startPremium() {
-  // TODO: 실제 앱인토스 결제 연동 시 여기서 결제 SDK 호출
-  // 현재는 바로 분석 시작 (테스트용)
-
   showScreen('screen-premium');
-  document.getElementById('premium-title').textContent =
-    `${state.name}님의 운명 해킹 분석`;
-
+  document.getElementById('premium-title').textContent = `${state.name}님의 운명 해킹 분석`;
   buildPartsUI();
   await runPremiumAnalysis();
 }
 
 function buildPartsUI() {
-  const container = document.getElementById('parts-container');
-  container.innerHTML = PARTS.map((p, i) => `
+  document.getElementById('parts-container').innerHTML = PARTS.map((p,i) => `
     <div class="part-card" id="part-card-${i}">
       <div class="part-header">
         <span class="part-num">${p.num}</span>
         <span class="part-title-text">${p.title}</span>
         <span class="part-status" id="part-status-${i}">대기 중</span>
       </div>
-      <div class="part-error-msg" id="part-error-${i}" style="display:none">
-        분석 중 오류가 발생했어요.
-      </div>
-      <button class="btn-retry" id="part-retry-${i}" style="display:none"
-        onclick="retryPart(${i})">
-        🔄 이 파트 다시 분석하기
-      </button>
+      <div class="part-error-msg" id="part-error-${i}" style="display:none">분석 중 오류가 발생했어요.</div>
+      <button class="btn-retry" id="part-retry-${i}" style="display:none" onclick="retryPart(${i})">🔄 이 파트 다시 분석하기</button>
       <div class="part-content" id="part-content-${i}"></div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
 async function runPremiumAnalysis() {
   const concern = document.getElementById('inp-concern').value.trim();
   const ps = state.sajuInfo;
-
-  // 세션에 입력 정보 저장 (새로고침 대비)
-  sessionStorage.setItem('saju_state', JSON.stringify({
-    name: state.name, year: state.year, month: state.month,
-    day: state.day, hour: state.hour, gender: state.gender,
-    concern, sajuInfo: ps
-  }));
-
+  sessionStorage.setItem('saju_state', JSON.stringify({ name:state.name, year:state.year, month:state.month, day:state.day, hour:state.hour, gender:state.gender, concern, sajuInfo:ps }));
   for (let i = 0; i < PARTS.length; i++) {
     await analyzePartWithRetry(i, concern, ps);
     updateProgressBar(i + 1);
   }
-
   document.getElementById('progress-label').textContent = '분석 완료 ✓';
-  // 공유 섹션 표시
   setTimeout(() => {
-    const shareSection = document.getElementById('share-section');
-    if (shareSection) {
-      shareSection.style.display = 'block';
-      shareSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    const s = document.getElementById('share-section');
+    if (s) { s.style.display = 'block'; s.scrollIntoView({ behavior:'smooth', block:'start' }); }
   }, 800);
-}
-
-// ==================== 공유 기능 ====================
-function getAllAnalysisText() {
-  const name = state.name || '고객';
-  const concern = document.getElementById('inp-concern')?.value || '';
-  let text = `[운명해킹 사주 분석] ${name}님의 운명 분석 리포트
-`;
-  text += `고민: ${concern}
-`;
-  text += `분석일: 2026년 3월
-
-`;
-  text += `${'='.repeat(30)}
-
-`;
-
-  for (let i = 0; i < 9; i++) {
-    const partTitle = document.querySelector(`#part-card-${i} .part-title-text`)?.textContent || '';
-    const partContent = document.getElementById(`part-content-${i}`)?.textContent || '';
-    if (partContent) {
-      text += `PART ${i+1}. ${partTitle}
-
-${partContent}
-
-${'─'.repeat(20)}
-
-`;
-    }
-  }
-  return text;
-}
-
-async function copyToClipboard() {
-  const text = getAllAnalysisText();
-  try {
-    await navigator.clipboard.writeText(text);
-    showShareMsg('✅ 클립보드에 복사됐어요!');
-  } catch(e) {
-    // 폴백
-    const el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
-    showShareMsg('✅ 클립보드에 복사됐어요!');
-  }
-}
-
-function shareKakao() {
-  const name = state.name || '고객';
-  const msg = encodeURIComponent(
-    `[운명해킹] ${name}님의 사주 심층 분석 결과가 나왔어요!
-` +
-    `나만의 운명 해킹 분석 → https://saju-app-self.vercel.app`
-  );
-  // 카카오톡 공유 (웹에서는 URL 스킴으로)
-  window.open(`https://sharer.kakao.com/talk/friends/picker/link?app_key=YOUR_KAKAO_KEY&text=${msg}`, '_blank');
-  showShareMsg('💬 카카오톡으로 공유해보세요!');
-}
-
-function shareEmail() {
-  const name = state.name || '고객';
-  const subject = encodeURIComponent(`[운명해킹] ${name}님의 사주 심층 분석 리포트`);
-  const body = encodeURIComponent(getAllAnalysisText());
-  window.location.href = `mailto:?subject=${subject}&body=${body}`;
-  showShareMsg('📧 이메일 앱이 열려요!');
-}
-
-function showShareMsg(msg) {
-  const el = document.getElementById('share-copied');
-  if (el) {
-    el.textContent = msg;
-    setTimeout(() => { el.textContent = ''; }, 3000);
-  }
 }
 
 async function analyzePartWithRetry(i, concern, ps) {
   updateProgress(i, '분석 중...');
   showPartError(i, false);
-
   const prompt = buildPartPrompt(i, concern, ps);
   let success = false;
-
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const result = await callClaude(prompt, 2500);
@@ -1422,25 +557,15 @@ async function analyzePartWithRetry(i, concern, ps) {
       success = true;
       break;
     } catch(e) {
-      if (attempt < 2) {
-        updateProgress(i, `재시도 중... (${attempt + 1})`);
-        await sleep(1000);
-      }
+      if (attempt < 2) { updateProgress(i, `재시도 중... (${attempt+1})`); await sleep(1000); }
     }
   }
-
-  if (!success) {
-    updateProgress(i, '오류');
-    showPartError(i, true);
-  }
+  if (!success) { updateProgress(i, '오류'); showPartError(i, true); }
 }
 
-// 개별 파트 재시도
 async function retryPart(i) {
   const saved = JSON.parse(sessionStorage.getItem('saju_state') || '{}');
-  const concern = saved.concern || document.getElementById('inp-concern').value.trim();
-  const ps = saved.sajuInfo || state.sajuInfo;
-  await analyzePartWithRetry(i, concern, ps);
+  await analyzePartWithRetry(i, saved.concern || '', saved.sajuInfo || state.sajuInfo);
 }
 
 function showPartError(i, show) {
@@ -1450,9 +575,8 @@ function showPartError(i, show) {
 
 function buildPartPrompt(index, concern, ps) {
   const part = PARTS[index];
-  const sajuText = `년주 ${ps?.yearPillar || '미상'}, 월주 ${ps?.monthPillar || '미상'}, 일주 ${ps?.dayPillar || '미상'}${ps?.hourPillar ? ', 시주 ' + ps.hourPillar : ''}`;
-  const hourText = state.hour ? state.hour : '모름';
-
+  const sajuText = `년주 ${ps?.yearPillar||'미상'}, 월주 ${ps?.monthPillar||'미상'}, 일주 ${ps?.dayPillar||'미상'}${ps?.hourPillar ? ', 시주 '+ps.hourPillar : ''}`;
+  const hourText = state.hour || '모름';
   return `당신은 전문 사주 명리학자입니다.
 
 [의뢰인 정보]
@@ -1467,57 +591,66 @@ function buildPartPrompt(index, concern, ps) {
 ${part.num}: "${part.title}" 파트를 깊이 있게 분석해주세요.
 
 [출력 지침]
-- 명리학 이론(오행(五行), 천간지지(天干地支), 대운(大運), 세운(歲運) 등)을 구체적으로 활용
+- 명리학 이론을 구체적으로 활용
 - 의뢰인의 고민과 직접 연결하여 실용적으로 작성
 - 소제목 없이 자연스러운 문단 형태로 3~4개 문단 작성
-- 반드시 1200자 이상 1500자 이내로 작성. 문장이 반드시 완결되어야 함 (절대 중간에 끊기지 말 것)
+- 반드시 1200자 이상 1500자 이내로 작성. 문장이 반드시 완결되어야 함
 - 의뢰인의 이름을 자연스럽게 언급하며 개인화된 느낌으로
-- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기. 예: 일간(日干), 편재(偏財)
-- 마크다운 문법(**볼드**, *이탤릭* 등) 절대 사용 금지
+- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기
+- 마크다운 문법 절대 사용 금지
 - JSON 형식 절대 사용 금지. 순수 텍스트만 출력`;
 }
 
 function renderPartContent(index, text) {
   const content = document.getElementById(`part-content-${index}`);
-  // ** 마크다운 볼드 제거
-  const cleaned = text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1');
-  content.textContent = cleaned;
+  content.textContent = text.replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
   content.classList.add('visible');
-
-  // 해당 파트로 부드럽게 스크롤
-  setTimeout(() => {
-    content.closest('.part-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 100);
+  setTimeout(() => { content.closest('.part-card').scrollIntoView({ behavior:'smooth', block:'start' }); }, 100);
 }
 
-function updateProgress(index, statusText, done = false) {
+function updateProgress(index, statusText, done=false) {
   const el = document.getElementById(`part-status-${index}`);
-  if (el) {
-    el.textContent = statusText;
-    if (done) el.classList.add('done');
-  }
+  if (el) { el.textContent = statusText; if (done) el.classList.add('done'); }
   const label = document.getElementById('progress-label');
   if (label) label.textContent = `${PARTS[index].num} 분석 중...`;
 }
 
 function updateProgressBar(done) {
-  document.getElementById('progress-bar').style.width = `${(done / PARTS.length) * 100}%`;
+  document.getElementById('progress-bar').style.width = `${(done/PARTS.length)*100}%`;
   document.getElementById('progress-count').textContent = `${done} / ${PARTS.length}`;
 }
 
+function getAllAnalysisText() {
+  let text = `[운명해킹 사주 분석] ${state.name}님의 운명 분석 리포트\n고민: ${document.getElementById('inp-concern')?.value||''}\n분석일: 2026년 3월\n\n${'='.repeat(30)}\n\n`;
+  for (let i = 0; i < 9; i++) {
+    const partTitle = document.querySelector(`#part-card-${i} .part-title-text`)?.textContent || '';
+    const partContent = document.getElementById(`part-content-${i}`)?.textContent || '';
+    if (partContent) text += `PART ${i+1}. ${partTitle}\n\n${partContent}\n\n${'─'.repeat(20)}\n\n`;
+  }
+  return text;
+}
+
+async function copyToClipboard() {
+  const text = getAllAnalysisText();
+  try { await navigator.clipboard.writeText(text); } catch(e) { const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }
+  showShareMsg('✅ 클립보드에 복사됐어요!');
+}
+
+function shareEmail() {
+  const subject = encodeURIComponent(`[운명해킹] ${state.name}님의 사주 심층 분석 리포트`);
+  const body = encodeURIComponent(getAllAnalysisText());
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+function showShareMsg(msg) {
+  const el = document.getElementById('share-copied');
+  if (el) { el.textContent = msg; setTimeout(() => { el.textContent = ''; }, 3000); }
+}
+
+function showError(msg) { const el = document.getElementById('error-msg'); el.textContent = msg; el.style.display = 'block'; }
+function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ==================== 에러 ====================
-function showError(msg) {
-  const el = document.getElementById('error-msg');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function hideError() {
-  document.getElementById('error-msg').style.display = 'none';
-}
-
-// ==================== 초기화 ====================
 buildToc();
 showScreen('screen-input');
 </script>
