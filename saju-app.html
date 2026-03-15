@@ -658,6 +658,33 @@
 
   .part-content.visible { display: block; }
 
+  /* 재시도 버튼 */
+  .btn-retry {
+    display: block;
+    margin: 12px 20px 16px;
+    width: calc(100% - 40px);
+    background: transparent;
+    border: 1px solid rgba(201,76,76,0.4);
+    border-radius: 8px;
+    padding: 10px;
+    color: #e88;
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-retry:hover {
+    background: rgba(201,76,76,0.1);
+    border-color: rgba(201,76,76,0.7);
+  }
+
+  .part-error-msg {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #e88;
+    line-height: 1.6;
+  }
+
   /* 진행 상태 바 */
   .progress-section {
     position: sticky;
@@ -1127,6 +1154,13 @@ function buildPartsUI() {
         <span class="part-title-text">${p.title}</span>
         <span class="part-status" id="part-status-${i}">대기 중</span>
       </div>
+      <div class="part-error-msg" id="part-error-${i}" style="display:none">
+        분석 중 오류가 발생했어요.
+      </div>
+      <button class="btn-retry" id="part-retry-${i}" style="display:none"
+        onclick="retryPart(${i})">
+        🔄 이 파트 다시 분석하기
+      </button>
       <div class="part-content" id="part-content-${i}"></div>
     </div>
   `).join('');
@@ -1136,37 +1170,60 @@ async function runPremiumAnalysis() {
   const concern = document.getElementById('inp-concern').value.trim();
   const ps = state.sajuInfo;
 
+  // 세션에 입력 정보 저장 (새로고침 대비)
+  sessionStorage.setItem('saju_state', JSON.stringify({
+    name: state.name, year: state.year, month: state.month,
+    day: state.day, hour: state.hour, gender: state.gender,
+    concern, sajuInfo: ps
+  }));
+
   for (let i = 0; i < PARTS.length; i++) {
-    updateProgress(i, '분석 중...');
-
-    const prompt = buildPartPrompt(i, concern, ps);
-    let success = false;
-
-    // 실패시 최대 2회 재시도
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const result = await callClaude(prompt, 1500);
-        renderPartContent(i, result);
-        updateProgress(i, '완료', true);
-        success = true;
-        break;
-      } catch(e) {
-        if (attempt < 2) {
-          updateProgress(i, `재시도 중... (${attempt + 1})`);
-          await sleep(1000);
-        }
-      }
-    }
-
-    if (!success) {
-      renderPartContent(i, '이 파트 분석 중 오류가 발생했어요. 잠시 후 전체를 다시 시도해주세요.');
-      updateProgress(i, '오류');
-    }
-
+    await analyzePartWithRetry(i, concern, ps);
     updateProgressBar(i + 1);
   }
 
   document.getElementById('progress-label').textContent = '분석 완료 ✓';
+}
+
+async function analyzePartWithRetry(i, concern, ps) {
+  updateProgress(i, '분석 중...');
+  showPartError(i, false);
+
+  const prompt = buildPartPrompt(i, concern, ps);
+  let success = false;
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const result = await callClaude(prompt, 1500);
+      renderPartContent(i, result);
+      updateProgress(i, '완료', true);
+      success = true;
+      break;
+    } catch(e) {
+      if (attempt < 2) {
+        updateProgress(i, `재시도 중... (${attempt + 1})`);
+        await sleep(1000);
+      }
+    }
+  }
+
+  if (!success) {
+    updateProgress(i, '오류');
+    showPartError(i, true);
+  }
+}
+
+// 개별 파트 재시도
+async function retryPart(i) {
+  const saved = JSON.parse(sessionStorage.getItem('saju_state') || '{}');
+  const concern = saved.concern || document.getElementById('inp-concern').value.trim();
+  const ps = saved.sajuInfo || state.sajuInfo;
+  await analyzePartWithRetry(i, concern, ps);
+}
+
+function showPartError(i, show) {
+  document.getElementById(`part-error-${i}`).style.display = show ? 'block' : 'none';
+  document.getElementById(`part-retry-${i}`).style.display = show ? 'block' : 'none';
 }
 
 function buildPartPrompt(index, concern, ps) {
