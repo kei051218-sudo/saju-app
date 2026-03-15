@@ -1092,7 +1092,7 @@ async function startAnalysis() {
   const prompt = buildFreePrompt();
 
   try {
-    const result = await callClaude(prompt, 1200);
+    const result = await callClaude(prompt, 2500);
     showFreeResult(result);
   } catch(e) {
     showScreen('screen-input');
@@ -1124,7 +1124,7 @@ function buildFreePrompt() {
     "mainElement": "의뢰인의 주요 오행 1가지 (木/火/土/金/水 중)",
     "title": "이 분석을 한 문장으로 압축한 제목. 의뢰인의 현재 상황과 고민을 반영하여 구체적으로 (예: '대출 만기 앞에 선 丁火, 결단이 필요한 시간')"
   },
-  "freeAnalysis": "아래 두 파트를 자연스럽게 이어서 작성하세요. 총 600~700자.
+  "freeAnalysis": "아래 두 파트를 자연스럽게 이어서 작성하세요. 반드시 총 1200자 이상 1500자 이내로 작성.
 
 [파트1: 고민 진단 - 300~350자]
 이 고민이 지금 이 시기에 생긴 사주적 이유를 분석하세요. 오행과 천간지지를 구체적으로 언급하되, 전문 용어 뒤엔 반드시 쉬운 풀이를 괄호로 달아주세요. '당신은 이런 사람'이 아니라 '지금 이 고민이 왜 생겼는지'에 집중하세요.
