@@ -967,7 +967,7 @@ async function startAnalysis() {
   const prompt = buildFreePrompt();
 
   try {
-    const result = await callClaude(prompt, 800);
+    const result = await callClaude(prompt, 1200);
     showFreeResult(result);
   } catch(e) {
     showScreen('screen-input');
@@ -1140,17 +1140,30 @@ async function runPremiumAnalysis() {
     updateProgress(i, '분석 중...');
 
     const prompt = buildPartPrompt(i, concern, ps);
-    try {
-      const result = await callClaude(prompt, 1000);
-      renderPartContent(i, result);
-      updateProgress(i, '완료', true);
-    } catch(e) {
-      renderPartContent(i, '분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    let success = false;
+
+    // 실패시 최대 2회 재시도
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const result = await callClaude(prompt, 1500);
+        renderPartContent(i, result);
+        updateProgress(i, '완료', true);
+        success = true;
+        break;
+      } catch(e) {
+        if (attempt < 2) {
+          updateProgress(i, `재시도 중... (${attempt + 1})`);
+          await sleep(1000);
+        }
+      }
+    }
+
+    if (!success) {
+      renderPartContent(i, '이 파트 분석 중 오류가 발생했어요. 잠시 후 전체를 다시 시도해주세요.');
       updateProgress(i, '오류');
     }
 
     updateProgressBar(i + 1);
-    await sleep(300);
   }
 
   document.getElementById('progress-label').textContent = '분석 완료 ✓';
