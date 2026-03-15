@@ -495,10 +495,11 @@
 
   .volume-num {
     font-family: 'Noto Serif KR', serif;
-    font-size: 14px;
-    color: var(--text-dim);
-    font-weight: 400;
+    font-size: 16px;
+    color: var(--gold2);
+    font-weight: 600;
     margin-bottom: 8px;
+    letter-spacing: 0.5px;
   }
 
   .volume-price {
@@ -667,6 +668,66 @@
   }
 
   .part-content.visible { display: block; }
+
+  /* 공유 버튼 */
+  .share-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  .share-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .share-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .share-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-share {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-share:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold2);
+  }
+
+  .share-copied {
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 10px;
+    height: 16px;
+    transition: opacity 0.3s;
+  }
 
   /* 재시도 버튼 */
   .btn-retry {
@@ -877,7 +938,7 @@
 
         <!-- 분량 -->
         <div class="volume-badge">
-          <div class="volume-label">9파트 / 약 42,000자 심층 분석</div>
+          <div class="volume-num">9파트 / 약 42,000자 심층 분석</div>
           <div class="volume-price">2,900원<span>일회 결제</span></div>
         </div>
 
@@ -920,6 +981,26 @@
     </div>
 
     <div id="parts-container"></div>
+
+    <!-- 공유 섹션 (분석 완료 후 표시) -->
+    <div class="share-section" id="share-section" style="display:none">
+      <div class="share-title">✦ 분석 결과 간직하기</div>
+      <div class="share-desc">
+        나만의 운명 해킹 분석 결과를<br>저장하거나 공유해보세요
+      </div>
+      <div class="share-btns">
+        <button type="button" class="btn-share" onclick="copyToClipboard()">
+          📋 클립보드 복사
+        </button>
+        <button type="button" class="btn-share" onclick="shareKakao()">
+          💬 카카오톡 공유
+        </button>
+        <button type="button" class="btn-share" onclick="shareEmail()">
+          📧 이메일로 받기
+        </button>
+      </div>
+      <div class="share-copied" id="share-copied"></div>
+    </div>
 
   </div>
 
@@ -1240,6 +1321,90 @@ async function runPremiumAnalysis() {
   }
 
   document.getElementById('progress-label').textContent = '분석 완료 ✓';
+  // 공유 섹션 표시
+  setTimeout(() => {
+    const shareSection = document.getElementById('share-section');
+    if (shareSection) {
+      shareSection.style.display = 'block';
+      shareSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 800);
+}
+
+// ==================== 공유 기능 ====================
+function getAllAnalysisText() {
+  const name = state.name || '고객';
+  const concern = document.getElementById('inp-concern')?.value || '';
+  let text = `[운명해킹 사주 분석] ${name}님의 운명 분석 리포트
+`;
+  text += `고민: ${concern}
+`;
+  text += `분석일: 2026년 3월
+
+`;
+  text += `${'='.repeat(30)}
+
+`;
+
+  for (let i = 0; i < 9; i++) {
+    const partTitle = document.querySelector(`#part-card-${i} .part-title-text`)?.textContent || '';
+    const partContent = document.getElementById(`part-content-${i}`)?.textContent || '';
+    if (partContent) {
+      text += `PART ${i+1}. ${partTitle}
+
+${partContent}
+
+${'─'.repeat(20)}
+
+`;
+    }
+  }
+  return text;
+}
+
+async function copyToClipboard() {
+  const text = getAllAnalysisText();
+  try {
+    await navigator.clipboard.writeText(text);
+    showShareMsg('✅ 클립보드에 복사됐어요!');
+  } catch(e) {
+    // 폴백
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showShareMsg('✅ 클립보드에 복사됐어요!');
+  }
+}
+
+function shareKakao() {
+  const name = state.name || '고객';
+  const msg = encodeURIComponent(
+    `[운명해킹] ${name}님의 사주 심층 분석 결과가 나왔어요!
+` +
+    `나만의 운명 해킹 분석 → https://saju-app-self.vercel.app`
+  );
+  // 카카오톡 공유 (웹에서는 URL 스킴으로)
+  window.open(`https://sharer.kakao.com/talk/friends/picker/link?app_key=YOUR_KAKAO_KEY&text=${msg}`, '_blank');
+  showShareMsg('💬 카카오톡으로 공유해보세요!');
+}
+
+function shareEmail() {
+  const name = state.name || '고객';
+  const subject = encodeURIComponent(`[운명해킹] ${name}님의 사주 심층 분석 리포트`);
+  const body = encodeURIComponent(getAllAnalysisText());
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  showShareMsg('📧 이메일 앱이 열려요!');
+}
+
+function showShareMsg(msg) {
+  const el = document.getElementById('share-copied');
+  if (el) {
+    el.textContent = msg;
+    setTimeout(() => { el.textContent = ''; }, 3000);
+  }
 }
 
 async function analyzePartWithRetry(i, concern, ps) {
@@ -1302,15 +1467,14 @@ function buildPartPrompt(index, concern, ps) {
 ${part.num}: "${part.title}" 파트를 깊이 있게 분석해주세요.
 
 [출력 지침]
-- 명리학 이론(오행, 천간지지, 대운, 세운 등)을 구체적으로 활용
+- 명리학 이론(오행(五行), 천간지지(天干地支), 대운(大運), 세운(歲運) 등)을 구체적으로 활용
 - 의뢰인의 고민과 직접 연결하여 실용적으로 작성
-- 소제목 없이 자연스러운 문단 형태로 작성
-- 800~1000자 분량
+- 소제목 없이 자연스러운 문단 형태로 3~4개 문단 작성
+- 반드시 1500자 이상 2000자 이내로 작성 (이 분량 지침이 가장 중요)
 - 의뢰인의 이름을 자연스럽게 언급하며 개인화된 느낌으로
-- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기하세요. 예: 일간(日干), 편재(偏財), 대운(大運)
-- **볼드** 마크다운 절대 사용 금지. 강조하고 싶으면 문장 구조로 표현하세요.
-- 반드시 순수 JSON만 출력. \`\`\`json 코드블록 사용 금지. JSON 외 어떤 텍스트도 추가 금지.
-- JSON 필드는 반드시 sajuInfo와 freeAnalysis 두 개만. specialNote 등 추가 필드 절대 금지.`;
+- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기. 예: 일간(日干), 편재(偏財)
+- 마크다운 문법(**볼드**, *이탤릭* 등) 절대 사용 금지
+- JSON 형식 절대 사용 금지. 순수 텍스트만 출력`;
 }
 
 function renderPartContent(index, text) {
