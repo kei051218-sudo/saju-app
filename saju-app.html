@@ -1064,21 +1064,44 @@ async function callClaude(prompt, maxTokens = 1000) {
   return data.content[0].text;
 }
 
-function showFreeResult(raw) {
-  let parsed;
+function parseClaudeJSON(raw) {
+  // 1단계: ```json 블록 제거 후 파싱
   try {
-    const clean = raw.replace(/```json|```/g, '').trim();
-    parsed = JSON.parse(clean);
-  } catch(e) {
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try { parsed = JSON.parse(jsonMatch[0]); } catch(e2) {
-        parsed = { sajuInfo: { yearPillar:'??', monthPillar:'??', dayPillar:'??', hourPillar: null, title:'사주 분석 결과' }, freeAnalysis: raw };
-      }
-    } else {
-      parsed = { sajuInfo: { yearPillar:'??', monthPillar:'??', dayPillar:'??', hourPillar: null, title:'사주 분석 결과' }, freeAnalysis: raw };
-    }
-  }
+    const clean = raw.replace(/```json[\s\S]*?```/g, '').replace(/```/g, '').trim();
+    return JSON.parse(clean);
+  } catch(e) {}
+
+  // 2단계: { } 블록 추출 후 파싱
+  try {
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (match) return JSON.parse(match[0]);
+  } catch(e) {}
+
+  // 3단계: sajuInfo / freeAnalysis 값만 정규식으로 직접 추출
+  try {
+    const yearPillar = (raw.match(/"yearPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
+    const monthPillar = (raw.match(/"monthPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
+    const dayPillar = (raw.match(/"dayPillar"\s*:\s*"([^"]+)"/) || [])[1] || '??';
+    const hourPillar = (raw.match(/"hourPillar"\s*:\s*"([^"]+)"/) || [])[1] || null;
+    const mainElement = (raw.match(/"mainElement"\s*:\s*"([^"]+)"/) || [])[1] || '';
+    const title = (raw.match(/"title"\s*:\s*"([^"]+)"/) || [])[1] || '사주 분석 결과';
+    const freeAnalysis = (raw.match(/"freeAnalysis"\s*:\s*"([\s\S]+?)"(?:\s*[,}])/) || [])[1] || raw;
+    return {
+      sajuInfo: { yearPillar, monthPillar, dayPillar, hourPillar, mainElement, title },
+      freeAnalysis: freeAnalysis.replace(/\n/g, '
+')
+    };
+  } catch(e) {}
+
+  // 4단계: 완전 실패 — raw 텍스트 그대로
+  return {
+    sajuInfo: { yearPillar:'??', monthPillar:'??', dayPillar:'??', hourPillar: null, title:'사주 분석 결과' },
+    freeAnalysis: raw
+  };
+}
+
+function showFreeResult(raw) {
+  const parsed = parseClaudeJSON(raw);
 
   state.sajuInfo = parsed.sajuInfo;
 
@@ -1278,7 +1301,9 @@ ${part.num}: "${part.title}" 파트를 깊이 있게 분석해주세요.
 - 800~1000자 분량
 - 의뢰인의 이름을 자연스럽게 언급하며 개인화된 느낌으로
 - 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기하세요. 예: 일간(日干), 편재(偏財), 대운(大運)
-- **볼드** 마크다운 절대 사용 금지. 강조하고 싶으면 문장 구조로 표현하세요.`;
+- **볼드** 마크다운 절대 사용 금지. 강조하고 싶으면 문장 구조로 표현하세요.
+- 반드시 순수 JSON만 출력. \`\`\`json 코드블록 사용 금지. JSON 외 어떤 텍스트도 추가 금지.
+- JSON 필드는 반드시 sajuInfo와 freeAnalysis 두 개만. specialNote 등 추가 필드 절대 금지.`;
 }
 
 function renderPartContent(index, text) {
