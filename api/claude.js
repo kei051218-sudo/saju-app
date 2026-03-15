@@ -1,9 +1,9 @@
 export const config = {
   runtime: 'edge',
+  maxDuration: 60,
 };
 
 export default async function handler(req) {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, {
       headers: {
@@ -22,14 +22,10 @@ export default async function handler(req) {
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'API key not configured' }), {
       status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
   }
 
@@ -45,7 +41,7 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: body.max_tokens || 1000,
+        max_tokens: body.max_tokens || 2500,
         messages: body.messages,
       }),
     });
@@ -65,10 +61,7 @@ export default async function handler(req) {
       JSON.stringify({ error: 'Internal server error', detail: error.message }),
       {
         status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       }
     );
   }
