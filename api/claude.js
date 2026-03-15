@@ -21,39 +21,55 @@ export default async function handler(req) {
     });
   }
 
-  try {
-    const body = await req.json();
+  const apiKey = process.env.ANTHROPIC_API_KEY;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-5',
-        max_tokens: body.max_tokens || 1000,
-        messages: body.messages,
-      }),
-    });
-
-    const data = await response.json();
-
-    return new Response(JSON.stringify(data), {
-      status: response.status,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: 'API key not configured' }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
     });
+  }
+
+  try {
+    const body = await req.json();
+
+    const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: body.max_tokens || 1000,
+        messages: body.messages,
+      }),
+    });
+
+    const data = await anthropicRes.json();
+
+    return new Response(JSON.stringify(data), {
+      status: anthropicRes.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: 'Internal server error', detail: error.message }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   }
 }
