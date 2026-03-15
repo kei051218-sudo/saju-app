@@ -193,9 +193,10 @@
   }
 
   .gender-btn.active {
-    background: var(--gold-dim);
-    border-color: var(--gold);
-    color: var(--gold2);
+    background: var(--gold-dim) !important;
+    border-color: var(--gold) !important;
+    color: var(--gold2) !important;
+    font-weight: 600;
   }
 
   /* 버튼 */
@@ -808,8 +809,8 @@
       <div class="form-group">
         <label class="form-label">성별</label>
         <div class="gender-row">
-          <button class="gender-btn" id="btn-male" onclick="selectGender('남')">♂ 남성</button>
-          <button class="gender-btn" id="btn-female" onclick="selectGender('여')">♀ 여성</button>
+          <button type="button" class="gender-btn" id="btn-male" onclick="selectGender('남')">♂ 남성</button>
+          <button type="button" class="gender-btn" id="btn-female" onclick="selectGender('여')">♀ 여성</button>
         </div>
       </div>
     </div>
@@ -956,8 +957,15 @@ function showScreen(id) {
 // ==================== 성별 선택 ====================
 function selectGender(g) {
   state.gender = g;
-  document.getElementById('btn-male').classList.toggle('active', g === '남');
-  document.getElementById('btn-female').classList.toggle('active', g === '여');
+  const male = document.getElementById('btn-male');
+  const female = document.getElementById('btn-female');
+  if (g === '남') {
+    male.classList.add('active');
+    female.classList.remove('active');
+  } else {
+    female.classList.add('active');
+    male.classList.remove('active');
+  }
 }
 
 // ==================== 목차 생성 ====================
@@ -1088,8 +1096,7 @@ function parseClaudeJSON(raw) {
     const freeAnalysis = (raw.match(/"freeAnalysis"\s*:\s*"([\s\S]+?)"(?:\s*[,}])/) || [])[1] || raw;
     return {
       sajuInfo: { yearPillar, monthPillar, dayPillar, hourPillar, mainElement, title },
-      freeAnalysis: freeAnalysis.replace(/\n/g, '
-')
+      freeAnalysis: freeAnalysis.replace(/\\n/g, '\n')
     };
   } catch(e) {}
 
