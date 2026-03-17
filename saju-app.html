@@ -269,10 +269,18 @@
           <div class="blur-preview-text">이 고민의 진짜 뿌리는 일주의 오행 불균형에서 시작됩니다. 특히 현재 대운과의 충돌이 이 시기에 유독 이 주제를 강하게 끌어올리고 있어요. 올해 세운의 흐름을 보면 결정적인 변곡점이 명확히 보이는데...</div>
           <div class="blur-overlay"><span class="blur-overlay-text">🔒 프리미엄에서 전체 공개</span></div>
         </div>
-        <button class="btn-premium" onclick="startPremium()">
-          운명 해킹 전체 분석 보기
-          <span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>
-        </button>
+        <div style="margin-bottom:10px; text-align:center; font-size:11px; color:#8a8478; letter-spacing:0.5px;">결제 수단 선택</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:8px;">
+          <button class="btn-premium" onclick="startPremiumWith('card')" style="padding:16px 8px;">
+            💳 카드 결제
+            <span class="btn-premium-sub">신용·체크카드</span>
+          </button>
+          <button onclick="startPremiumWith('kakao')" style="width:100%; background:#FEE500; border:none; border-radius:12px; padding:16px 8px; color:#191919; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <span style="font-size:15px; font-weight:800;">●pay 카카오페이</span>
+            <span style="font-size:11px; font-weight:400; opacity:0.7;">간편하게 결제</span>
+          </button>
+        </div>
+        <div style="text-align:center; font-size:10px; color:#4a4640;">2,900원 · 9파트 약 15,000자 완전 분석</div>
       </div>
     </div>
   </div>
@@ -947,39 +955,56 @@ function animateLoading() {
 // ==================== 결제 ====================
 const PORTONE_STORE_ID = 'store-ea30699d-2ba5-4783-9033-54ff9f29ca8c';
 const PAYMENT_AMOUNT = 2900;
+const CHANNEL_CARD = 'channel-key-02f30a49-484b-4b51-8b4e-6cf5e34ee8ae';   // KG이니시스
+const CHANNEL_KAKAO = 'channel-key-da6cbdd0-76c9-45d3-a2b0-f9bbd57a146f';  // 카카오페이
 
 async function startPremium() {
-  await requestPayment();
+  await requestPayment('card');
 }
 
-async function requestPayment() {
+async function startPremiumWith(method) {
+  await requestPayment(method);
+}
+
+async function requestPayment(method) {
   if (!window.PortOne) {
     showPaymentError('결제 모듈을 불러오는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
     return;
   }
 
+  const isKakao = method === 'kakao';
+  const channelKey = isKakao ? CHANNEL_KAKAO : CHANNEL_CARD;
+  const payMethod = isKakao ? 'EASY_PAY' : 'CARD';
   const paymentId = 'saju_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
   const orderName = '운명해킹 사주 심층분석 (' + (state.name || '고객') + '님)';
 
-  const btn = document.querySelector('.btn-premium');
-  if (btn) { btn.disabled = true; btn.textContent = '결제창 여는 중...'; }
+  // 버튼 비활성화
+  document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = true; });
 
   try {
-    const response = await window.PortOne.requestPayment({
+    const payParams = {
       storeId: PORTONE_STORE_ID,
-      channelKey: window.PORTONE_CHANNEL_KEY || '',
+      channelKey: channelKey,
       paymentId: paymentId,
       orderName: orderName,
       totalAmount: PAYMENT_AMOUNT,
       currency: 'CURRENCY_KRW',
-      payMethod: 'CARD',
+      payMethod: payMethod,
       customer: {
         fullName: state.name || '고객',
+        phoneNumber: '01000000000',
+        email: 'customer@saju-app.com',
       },
-    });
+    };
+
+    if (isKakao) {
+      payParams.easyPay = { easyPayProvider: 'KAKAOPAY' };
+    }
+
+    const response = await window.PortOne.requestPayment(payParams);
 
     if (response && response.code !== undefined) {
-      if (btn) { btn.disabled = false; btn.innerHTML = '운명 해킹 전체 분석 보기<span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>'; }
+      document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
       if (response.code === 'FAILURE_TYPE_PG') {
         showPaymentError('결제에 실패했어요: ' + (response.message || '다시 시도해주세요.'));
       }
@@ -993,7 +1018,7 @@ async function requestPayment() {
   } catch(e) {
     console.error('Payment error:', e);
     showPaymentError('결제 처리 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
-    if (btn) { btn.disabled = false; btn.innerHTML = '운명 해킹 전체 분석 보기<span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>'; }
+    document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
   }
 }
 
