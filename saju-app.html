@@ -55,7 +55,7 @@
   .pillar-char2 { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-dim); display: block; }
   .free-result { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
   .free-tag { display: inline-block; background: var(--gold-dim); border: 1px solid var(--gold); border-radius: 20px; padding: 3px 12px; font-size: 11px; color: var(--gold); letter-spacing: 1px; margin-bottom: 14px; }
-  .free-result-text { font-size: 15px; line-height: 1.9; color: var(--text); white-space: pre-line; }
+  .free-result-text { font-size: 15px; line-height: 1.9; color: var(--text); white-space: pre-line; text-align: left; }
   .streaming-cursor { display: inline-block; width: 2px; height: 16px; background: var(--gold); margin-left: 2px; vertical-align: middle; animation: blink 1s step-end infinite; }
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
   .hook-section { display: none; margin-top: 8px; }
@@ -90,7 +90,7 @@
   .part-title-text { font-family: 'Noto Serif KR', serif; font-size: 14px; color: var(--text); font-weight: 600; }
   .part-status { margin-left: auto; font-size: 12px; color: var(--text-dim); flex-shrink: 0; }
   .part-status.done { color: var(--gold); }
-  .part-content { padding: 20px; font-size: 14px; line-height: 1.9; color: var(--text); white-space: pre-line; display: none; }
+  .part-content { padding: 20px; font-size: 14px; line-height: 1.9; color: var(--text); white-space: pre-line; text-align: left; display: none; }
   .part-content.visible { display: block; }
   .share-section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-top: 24px; text-align: center; }
   .share-title { font-family: 'Noto Serif KR', serif; font-size: 14px; color: var(--gold); margin-bottom: 6px; }
@@ -128,7 +128,15 @@
         <input class="form-input" id="inp-name" type="text" placeholder="홍길동">
       </div>
       <div class="form-group">
-        <label class="form-label">생년월일</label>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <label class="form-label" style="margin-bottom:0">생년월일</label>
+          <div style="display:flex;gap:6px;">
+            <button type="button" id="btn-solar" onclick="setCalendarType('solar')"
+              style="padding:3px 10px;border-radius:20px;font-size:11px;border:1px solid;cursor:pointer;background:rgba(201,168,76,0.15);border-color:#c9a84c;color:#e8c97a;">양력</button>
+            <button type="button" id="btn-lunar" onclick="setCalendarType('lunar')"
+              style="padding:3px 10px;border-radius:20px;font-size:11px;border:1px solid;cursor:pointer;background:#1a1a28;border-color:rgba(201,168,76,0.2);color:#8a8478;">음력</button>
+          </div>
+        </div>
         <div class="date-row">
           <input class="form-input" id="inp-year" type="number" placeholder="년도" min="1930" max="2010">
           <select class="form-select" id="inp-month">
@@ -138,6 +146,11 @@
             <option>9</option><option>10</option><option>11</option><option>12</option>
           </select>
           <input class="form-input" id="inp-day" type="number" placeholder="일" min="1" max="31">
+        </div>
+        <div id="leap-month-row" style="display:none;margin-top:8px;align-items:center;gap:8px;">
+          <button type="button" id="btn-leap" onclick="toggleLeap()"
+            style="padding:4px 12px;border-radius:20px;font-size:11px;border:1px solid rgba(201,168,76,0.2);cursor:pointer;background:#1a1a28;color:#8a8478;">윤달</button>
+          <span style="font-size:11px;color:#8a8478;">음력 윤달생이면 선택하세요</span>
         </div>
       </div>
       <div class="form-group">
@@ -257,12 +270,14 @@ const JEOLGI_DATA = [[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,7],[9,8],[10,8],[11,
 const YEAR_TO_INMONTH_CG = [2,4,6,8,0,2,4,6,8,0];
 
 function getSajuMonthIndex(month, day) {
-  const yearOrder = [11,0,1,2,3,4,5,6,7,8,9,10];
-  let result = 11;
-  for (let m = 1; m <= 12; m++) {
-    const sajuIdx = yearOrder[m-1];
-    const jeolDay = JEOLGI_DATA[sajuIdx][1];
-    if (month > m || (month === m && day >= jeolDay)) result = sajuIdx;
+  // 절기 기준 사주월 (소한~대설 연중 순서)
+  const jeolgi = [
+    [1,6,11],[2,4,0],[3,6,1],[4,5,2],[5,6,3],[6,6,4],
+    [7,7,5],[8,7,6],[9,8,7],[10,8,8],[11,7,9],[12,7,10],
+  ];
+  let result = 10; // 기본값: 자월 (대설 이전 1월 초)
+  for (const [jm, jd, idx] of jeolgi) {
+    if (month > jm || (month === jm && day >= jd)) result = idx;
   }
   return result;
 }
@@ -323,7 +338,129 @@ function calcSaju(year, month, day, hourStr) {
 }
 
 // ==================== 상태 ====================
-const state = { name:'', year:'', month:'', day:'', hour:'', gender:'', concern:'', sajuInfo:null };
+// ==================== 음력→양력 변환 테이블 ====================
+const LUNAR_YEARS = {
+  1930:{m:1,d:30,s:[30,29,30,29,30,29,30,29,30,30,29,30],l:0,ld:0},
+  1931:{m:2,d:17,s:[30,29,30,29,30,29,30,29,29,30,29,30],l:6,ld:29},
+  1932:{m:2,d:6, s:[30,29,30,30,29,30,29,29,30,29,30,29],l:0,ld:0},
+  1933:{m:1,d:26,s:[30,30,29,30,29,30,29,30,29,30,29,29],l:5,ld:30},
+  1934:{m:2,d:14,s:[30,30,29,30,29,29,30,29,30,29,30,29],l:0,ld:0},
+  1935:{m:2,d:4, s:[30,29,30,29,30,29,29,30,29,30,29,30],l:4,ld:29},
+  1936:{m:1,d:24,s:[29,30,29,30,29,30,29,29,30,29,30,30],l:0,ld:0},
+  1937:{m:2,d:11,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:3,ld:29},
+  1938:{m:1,d:31,s:[29,30,29,30,29,30,30,29,30,29,30,29],l:0,ld:0},
+  1939:{m:2,d:19,s:[30,29,30,29,30,30,29,30,29,30,29,29],l:7,ld:30},
+  1940:{m:2,d:8, s:[30,29,30,29,30,29,30,30,29,30,29,30],l:0,ld:0},
+  1941:{m:1,d:27,s:[29,30,29,29,30,29,30,30,29,30,30,29],l:6,ld:29},
+  1942:{m:2,d:15,s:[30,29,30,29,29,30,29,30,29,30,30,30],l:0,ld:0},
+  1943:{m:2,d:5, s:[29,30,29,30,29,29,30,29,30,29,30,30],l:5,ld:29},
+  1944:{m:1,d:25,s:[29,30,29,30,29,30,29,30,29,29,30,30],l:0,ld:0},
+  1945:{m:2,d:13,s:[29,30,29,30,30,29,30,29,30,29,29,30],l:4,ld:30},
+  1946:{m:2,d:2, s:[29,30,29,30,30,29,30,29,30,30,29,29],l:0,ld:0},
+  1947:{m:1,d:22,s:[30,29,30,29,30,29,30,29,30,30,29,30],l:2,ld:30},
+  1948:{m:2,d:10,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:0,ld:0},
+  1949:{m:1,d:29,s:[30,29,30,29,30,29,30,29,30,29,30,29],l:7,ld:30},
+  1950:{m:2,d:17,s:[30,30,29,30,29,30,29,30,29,30,29,29],l:0,ld:0},
+  1951:{m:2,d:6, s:[30,30,29,30,29,30,30,29,30,29,30,29],l:5,ld:30},
+  1952:{m:1,d:27,s:[29,30,29,30,29,30,30,29,30,30,29,29],l:0,ld:0},
+  1953:{m:2,d:14,s:[30,29,30,29,30,29,30,29,30,30,29,30],l:3,ld:29},
+  1954:{m:2,d:3, s:[29,30,29,30,29,30,29,30,29,30,29,30],l:0,ld:0},
+  1955:{m:1,d:24,s:[29,30,29,30,29,30,29,30,29,30,30,29],l:3,ld:30},
+  1956:{m:2,d:12,s:[30,29,30,29,30,29,30,29,30,29,30,30],l:0,ld:0},
+  1957:{m:1,d:31,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:8,ld:29},
+  1958:{m:2,d:18,s:[30,29,30,29,30,29,30,29,30,29,30,29],l:0,ld:0},
+  1959:{m:2,d:8, s:[30,30,29,30,29,30,29,30,29,29,30,30],l:6,ld:29},
+  1960:{m:1,d:28,s:[29,30,30,29,30,29,30,29,30,29,29,30],l:0,ld:0},
+  1961:{m:2,d:15,s:[30,29,30,29,30,30,29,30,29,30,29,29],l:5,ld:30},
+  1962:{m:2,d:5, s:[30,29,30,29,30,30,29,30,30,29,30,29],l:0,ld:0},
+  1963:{m:1,d:25,s:[29,30,29,30,29,30,29,30,30,29,30,30],l:4,ld:29},
+  1964:{m:2,d:13,s:[29,29,30,29,30,29,30,29,30,29,30,30],l:0,ld:0},
+  1965:{m:2,d:2, s:[29,30,29,30,29,30,29,30,29,30,29,30],l:2,ld:29},
+  1966:{m:1,d:21,s:[30,29,30,29,30,29,30,29,30,29,30,29],l:0,ld:0},
+  1967:{m:2,d:9, s:[30,30,29,30,29,30,29,30,29,30,29,30],l:3,ld:30},
+  1968:{m:1,d:30,s:[29,30,29,30,29,30,29,30,29,30,30,29],l:0,ld:0},
+  1969:{m:2,d:17,s:[30,29,30,29,30,29,30,29,30,29,30,30],l:7,ld:29},
+  1970:{m:2,d:6, s:[29,30,29,30,29,30,29,30,29,30,29,30],l:0,ld:0},
+  1971:{m:1,d:27,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:5,ld:30},
+  1972:{m:2,d:15,s:[29,29,30,29,30,29,30,30,29,30,29,30],l:0,ld:0},
+  1973:{m:2,d:3, s:[29,30,29,30,29,30,29,30,29,30,30,29],l:4,ld:30},
+  1974:{m:1,d:23,s:[30,29,30,29,30,29,30,29,30,29,30,30],l:0,ld:0},
+  1975:{m:2,d:11,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:8,ld:29},
+  1976:{m:1,d:31,s:[29,30,29,30,29,30,29,30,29,29,30,30],l:0,ld:0},
+  1977:{m:2,d:18,s:[29,30,29,30,30,29,30,29,30,29,29,30],l:6,ld:30},
+  1978:{m:2,d:7, s:[29,30,29,30,30,29,30,29,30,30,29,29],l:0,ld:0},
+  1979:{m:1,d:28,s:[30,29,30,29,30,29,30,30,29,30,29,30],l:5,ld:29},
+  1980:{m:1,d:16,s:[30,29,29,30,29,30,29,30,30,29,30,30],l:0,ld:0},
+  1981:{m:2,d:5, s:[29,30,29,29,30,29,30,29,30,30,30,29],l:4,ld:30},
+  1982:{m:1,d:25,s:[30,29,30,29,29,30,29,30,29,30,30,30],l:0,ld:0},
+  1983:{m:2,d:13,s:[29,30,30,29,29,30,29,29,30,30,29,30],l:11,ld:29},
+  1984:{m:2,d:2, s:[29,30,30,29,30,29,30,29,29,30,29,30],l:0,ld:0},
+  1985:{m:2,d:20,s:[29,30,29,30,30,29,30,29,30,29,30,29],l:10,ld:29},
+  1986:{m:2,d:9, s:[30,29,30,29,30,29,30,30,29,29,30,30],l:0,ld:0},
+  1987:{m:1,d:29,s:[29,30,29,30,29,30,29,30,29,30,30,29],l:6,ld:30},
+  1988:{m:2,d:17,s:[30,29,30,29,30,29,30,29,30,29,30,30],l:0,ld:0},
+  1989:{m:2,d:6, s:[29,30,29,30,29,30,29,30,29,30,29,30],l:5,ld:29},
+  1990:{m:1,d:27,s:[29,30,29,30,29,30,29,30,29,30,29,30],l:0,ld:0},
+  1991:{m:2,d:15,s:[29,30,29,30,29,30,29,30,29,29,30,30],l:3,ld:29},
+  1992:{m:2,d:4, s:[29,30,29,30,30,29,30,29,30,29,29,30],l:0,ld:0},
+  1993:{m:1,d:23,s:[30,29,30,29,30,29,30,30,29,30,29,29],l:3,ld:30},
+  1994:{m:2,d:10,s:[30,29,30,29,30,29,30,30,29,30,30,29],l:0,ld:0},
+  1995:{m:1,d:31,s:[29,30,29,30,29,30,29,30,30,29,30,29],l:8,ld:30},
+  1996:{m:2,d:19,s:[30,29,30,29,30,29,30,29,30,29,30,29],l:0,ld:0},
+  1997:{m:2,d:7, s:[30,30,29,30,29,30,29,30,29,30,29,29],l:5,ld:29},
+  1998:{m:1,d:28,s:[30,30,29,30,29,30,30,29,30,29,30,29],l:0,ld:0},
+  1999:{m:2,d:16,s:[29,30,29,30,29,30,30,29,30,30,29,30],l:4,ld:29},
+  2000:{m:2,d:5, s:[29,30,29,29,30,30,29,30,30,29,30,30],l:0,ld:0},
+  2001:{m:1,d:24,s:[29,29,30,29,29,30,30,29,30,30,30,29],l:0,ld:0},
+  2002:{m:2,d:12,s:[30,29,29,30,29,29,30,30,29,30,30,29],l:5,ld:30},
+  2003:{m:2,d:1, s:[30,30,29,29,30,29,29,30,29,30,30,30],l:0,ld:0},
+  2004:{m:1,d:22,s:[29,30,30,29,29,30,29,29,30,29,30,30],l:2,ld:29},
+  2005:{m:2,d:9, s:[30,29,30,30,29,29,30,29,29,30,29,30],l:0,ld:0},
+  2006:{m:1,d:29,s:[30,29,30,30,29,30,29,30,29,29,30,29],l:7,ld:30},
+  2007:{m:2,d:18,s:[29,30,29,30,30,29,30,30,29,29,30,29],l:0,ld:0},
+  2008:{m:2,d:7, s:[30,29,30,29,30,29,30,30,29,30,29,30],l:5,ld:30},
+  2009:{m:1,d:26,s:[29,30,29,30,29,30,29,30,29,30,30,29],l:0,ld:0},
+  2010:{m:2,d:14,s:[30,29,30,29,30,29,29,30,29,30,30,29],l:5,ld:30},
+  2011:{m:2,d:3, s:[30,30,29,30,29,29,30,29,29,30,29,30],l:0,ld:0},
+  2012:{m:1,d:23,s:[30,30,29,30,29,30,29,30,29,29,30,29],l:4,ld:29},
+  2013:{m:2,d:10,s:[30,30,29,30,29,30,30,29,30,29,29,30],l:0,ld:0},
+  2014:{m:1,d:31,s:[29,30,29,30,29,30,30,29,30,30,29,29],l:9,ld:29},
+  2015:{m:2,d:19,s:[30,29,30,29,30,29,30,29,30,30,29,30],l:0,ld:0},
+  2016:{m:2,d:8, s:[29,30,29,30,29,30,29,30,29,30,29,30],l:6,ld:29},
+  2017:{m:1,d:28,s:[29,30,29,30,29,30,29,30,29,29,30,30],l:0,ld:0},
+  2018:{m:2,d:16,s:[29,30,29,30,29,30,29,29,30,29,30,30],l:5,ld:29},
+  2019:{m:2,d:5, s:[29,30,30,29,30,29,30,29,29,30,29,30],l:0,ld:0},
+  2020:{m:1,d:25,s:[29,30,30,29,30,29,30,30,29,29,30,29],l:4,ld:30},
+  2021:{m:2,d:12,s:[30,29,30,29,30,29,30,30,29,30,29,30],l:0,ld:0},
+  2022:{m:2,d:1, s:[29,30,29,30,29,30,29,30,30,29,30,29],l:2,ld:30},
+  2023:{m:1,d:22,s:[29,30,29,30,29,30,29,30,30,29,30,30],l:0,ld:0},
+  2024:{m:2,d:10,s:[29,29,30,29,30,29,30,29,30,30,29,30],l:6,ld:29},
+  2025:{m:1,d:29,s:[30,29,29,30,29,30,29,30,29,30,29,30],l:0,ld:0},
+  2026:{m:2,d:17,s:[30,29,30,29,30,29,29,30,29,30,29,30],l:6,ld:30},
+  2027:{m:2,d:7, s:[30,29,30,29,30,29,30,29,30,29,30,29],l:0,ld:0},
+  2028:{m:1,d:26,s:[30,30,29,30,29,30,29,30,29,30,29,29],l:5,ld:30},
+  2029:{m:2,d:13,s:[30,30,29,30,29,30,30,29,30,29,30,29],l:0,ld:0},
+  2030:{m:2,d:3, s:[29,30,29,30,29,30,30,29,30,30,29,30],l:3,ld:29},
+};
+
+function lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap) {
+  const data = LUNAR_YEARS[lunarYear];
+  if (!data) return { year: lunarYear, month: lunarMonth, day: lunarDay };
+  const date = new Date(lunarYear, data.m - 1, data.d);
+  const months = data.s;
+  const leapMonth = data.l;
+  const leapDays = data.ld;
+  for (let m = 1; m < lunarMonth; m++) {
+    date.setDate(date.getDate() + months[m - 1]);
+    if (leapMonth > 0 && m === leapMonth) date.setDate(date.getDate() + leapDays);
+  }
+  if (isLeap && leapMonth === lunarMonth) date.setDate(date.getDate() + months[lunarMonth - 1]);
+  date.setDate(date.getDate() + lunarDay - 1);
+  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+}
+
+// ==================== 상태 ====================
+const state = { name:'', year:'', month:'', day:'', hour:'', gender:'', concern:'', sajuInfo:null, calendarType:'solar', isLeapMonth:false };
 
 const PARTS = [
   { num:'PART 1', title:'이 고민이 반복되는 진짜 이유' },
@@ -349,6 +486,47 @@ function selectGender(g) {
   state.gender = g;
   document.getElementById('btn-male').classList.toggle('active', g === '남');
   document.getElementById('btn-female').classList.toggle('active', g === '여');
+}
+
+function setCalendarType(type) {
+  state.calendarType = type;
+  const solarBtn = document.getElementById('btn-solar');
+  const lunarBtn = document.getElementById('btn-lunar');
+  const leapRow = document.getElementById('leap-month-row');
+  if (type === 'solar') {
+    solarBtn.style.background = 'rgba(201,168,76,0.15)';
+    solarBtn.style.borderColor = '#c9a84c';
+    solarBtn.style.color = '#e8c97a';
+    lunarBtn.style.background = '#1a1a28';
+    lunarBtn.style.borderColor = 'rgba(201,168,76,0.2)';
+    lunarBtn.style.color = '#8a8478';
+    leapRow.style.display = 'none';
+    state.isLeapMonth = false;
+  } else {
+    lunarBtn.style.background = 'rgba(201,168,76,0.15)';
+    lunarBtn.style.borderColor = '#c9a84c';
+    lunarBtn.style.color = '#e8c97a';
+    solarBtn.style.background = '#1a1a28';
+    solarBtn.style.borderColor = 'rgba(201,168,76,0.2)';
+    solarBtn.style.color = '#8a8478';
+    leapRow.style.display = 'flex';
+  }
+}
+
+function toggleLeap() {
+  state.isLeapMonth = !state.isLeapMonth;
+  const btn = document.getElementById('btn-leap');
+  if (state.isLeapMonth) {
+    btn.style.background = 'rgba(201,168,76,0.15)';
+    btn.style.borderColor = '#c9a84c';
+    btn.style.color = '#e8c97a';
+    btn.textContent = '✓ 윤달';
+  } else {
+    btn.style.background = '#1a1a28';
+    btn.style.borderColor = 'rgba(201,168,76,0.2)';
+    btn.style.color = '#8a8478';
+    btn.textContent = '윤달';
+  }
 }
 
 function buildToc() {
@@ -377,8 +555,15 @@ async function startAnalysis() {
   showScreen('screen-loading');
   animateLoading();
 
+  // 음력이면 양력으로 변환
+  let solarYear = parseInt(year), solarMonth = parseInt(month), solarDay = parseInt(day);
+  if (state.calendarType === 'lunar') {
+    const solar = lunarToSolar(solarYear, solarMonth, solarDay, state.isLeapMonth);
+    solarYear = solar.year; solarMonth = solar.month; solarDay = solar.day;
+  }
+
   // JS로 사주 계산
-  const saju = calcSaju(parseInt(year), parseInt(month), parseInt(day), state.hour);
+  const saju = calcSaju(solarYear, solarMonth, solarDay, state.hour);
   const sajuText = `년주 ${saju.yearPillar}, 월주 ${saju.monthPillar}, 일주 ${saju.dayPillar}${saju.hourPillar ? ', 시주 ' + saju.hourPillar : ''}`;
   const hourPillarJSON = saju.hourPillar ? `"${saju.hourPillar}"` : 'null';
   const hourText = state.hour ? `태어난 시간: ${state.hour}` : '태어난 시간: 모름';
@@ -387,12 +572,12 @@ async function startAnalysis() {
 
 [의뢰인 정보]
 - 이름: ${state.name}
-- 생년월일: ${year}년 ${month}월 ${day}일
+- 생년월일: ${solarYear}년 ${solarMonth}월 ${solarDay}일
 - ${hourText}
 - 성별: ${state.gender}성
 - 고민: ${concern}
 - 사주원국 (이미 계산됨, 절대 바꾸지 마세요): ${sajuText}
-- 현재 날짜: 2026년 3월 (올해는 2026년 丙午년, 의뢰인 나이 만 ${new Date().getFullYear() - parseInt(year)}세)
+- 현재 날짜: 2026년 3월 (올해는 2026년 丙午년, 의뢰인 나이 만 ${new Date().getFullYear() - solarYear}세)
 
 [출력 지침]
 다음 형식으로 JSON만 출력하세요. 다른 말은 절대 하지 마세요.
@@ -414,7 +599,7 @@ async function startAnalysis() {
 [파트2: 지금 당장 쓸 수 있는 조언 1가지 - 250~350자]
 '이번 주 안에', '이번 달 안에' 처럼 시간을 특정하고, 구체적인 행동 1가지를 알려주세요.
 
-마지막 문장: '하지만 이 조언 하나로는 부족해요. 이 고민이 반복되는 근본 이유가 따로 있거든요.' 로 자연스럽게 마무리.
+마지막 문장: '이 고민이 반복되는 근본 이유와 구체적인 해결법을 제안해드릴게요. 진짜 운명해킹을 원하신다면 아래 버튼을 클릭해주세요.' 로 자연스럽게 마무리.
 - 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기.
 - **볼드** 마크다운 절대 사용 금지."
 }`;
@@ -476,7 +661,6 @@ function showFreeResult(raw, saju) {
     .replace(/\*\*([^*]+)\*\*/g,'$1').replace(/\*([^*]+)\*/g,'$1');
   streamText('free-result-text', 'cursor1', cleanedAnalysis, () => {
     document.getElementById('hook-section').style.display = 'block';
-    document.getElementById('hook-section').scrollIntoView({ behavior:'smooth', block:'start' });
   });
 }
 
