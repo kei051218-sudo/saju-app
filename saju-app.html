@@ -109,6 +109,32 @@
   .screen { animation: fadeIn 0.4s ease; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .error-msg { background: rgba(201,76,76,0.1); border: 1px solid rgba(201,76,76,0.3); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #e88; margin-top: 12px; display: none; }
+  /* ===== 채팅 화면 ===== */
+  #screen-chat { display: none; }
+  .chat-header { text-align: center; padding: 32px 0 20px; }
+  .chat-progress-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; }
+  .chat-step-dot { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid rgba(201,168,76,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8a8478; transition: all 0.3s; flex-shrink: 0; }
+  .chat-step-dot.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+  .chat-step-dot.done { border-color: var(--gold); background: var(--gold); color: #1a1200; }
+  .chat-step-line { width: 20px; height: 1px; background: rgba(201,168,76,0.2); flex-shrink: 0; }
+  .chat-messages { margin-bottom: 16px; min-height: 200px; }
+  .chat-bubble-wrap { display: flex; margin-bottom: 14px; animation: fadeIn 0.3s ease; }
+  .chat-bubble-wrap.user { justify-content: flex-end; }
+  .chat-bubble { max-width: 82%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.75; }
+  .chat-bubble.ai { background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+  .chat-bubble.user { background: linear-gradient(135deg, var(--accent), #9b6fd4); color: #fff; border-bottom-right-radius: 4px; }
+  .chat-typing { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
+  .chat-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--text-dim); animation: typing 1.2s infinite; }
+  .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%,60%,100% { transform: translateY(0); opacity:0.4; } 30% { transform: translateY(-6px); opacity:1; } }
+  .chat-input-wrap { display: flex; gap: 8px; align-items: flex-end; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 10px 10px 14px; }
+  .chat-input { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-family: 'Noto Sans KR', sans-serif; font-size: 14px; line-height: 1.6; resize: none; max-height: 120px; min-height: 24px; }
+  .chat-input::placeholder { color: var(--text-dim); }
+  .chat-send-btn { background: linear-gradient(135deg, var(--gold), var(--gold2)); border: none; border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-size: 16px; color: #1a1200; }
+  .chat-send-btn:hover { transform: scale(1.05); }
+  .chat-send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .chat-hint { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -179,14 +205,26 @@
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">✦ 지금 가장 큰 고민</div>
-      <div class="form-group">
-        <textarea class="form-textarea" id="inp-concern" placeholder="예: 이직을 해야 할지 말아야 할지 모르겠어요..."></textarea>
-      </div>
-    </div>
-    <button class="btn-primary" id="btn-analyze" onclick="startAnalysis()">☯ 무료 사주 분석 시작</button>
+    <button class="btn-primary" id="btn-analyze" onclick="goToChat()">☯ 다음 단계로 →</button>
     <div class="error-msg" id="error-msg"></div>
+  </div>
+
+  <!-- 채팅 화면 -->
+  <div id="screen-chat" class="screen">
+    <div class="chat-header">
+      <div style="font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px;">STEP 2 · 고민 심층 파악</div>
+      <div style="font-family:'Noto Serif KR',serif;font-size:17px;color:var(--gold2);font-weight:600;">당신의 이야기를 들려주세요</div>
+    </div>
+    <div class="chat-progress-wrap" id="chat-progress-wrap"></div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;">
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chat-input" placeholder="답변을 입력해주세요..." rows="1"
+          onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+        <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatMessage()">➤</button>
+      </div>
+      <div class="chat-hint" id="chat-hint">Enter로 전송 · Shift+Enter로 줄바꿈</div>
+    </div>
   </div>
 
   <!-- 로딩 화면 -->
@@ -461,6 +499,11 @@ function lunarToSolar(lunarYear, lunarMonth, lunarDay, isLeap) {
 
 // ==================== 상태 ====================
 const state = { name:'', year:'', month:'', day:'', hour:'', gender:'', concern:'', sajuInfo:null, calendarType:'solar', isLeapMonth:false };
+const chatHistory = []; // { role: 'ai'|'user', text: string }
+let chatTurn = 0;
+const MAX_TURNS = 5;
+const FIRST_QUESTION = '지금 당신을 가장 힘들게 하는 고민이나 문제, 혹은 가장 이루고 싶은 목표가 있다면 들려주세요.';
+const LAST_QUESTION = '마지막으로, 이 고민이 얼마나 됐나요? 그리고 지금까지 어떤 시도를 해보셨나요?';
 
 const PARTS = [
   { num:'PART 1', title:'이 고민이 반복되는 진짜 이유' },
@@ -475,7 +518,7 @@ const PARTS = [
 ];
 
 function showScreen(id) {
-  ['screen-input','screen-loading','screen-result','screen-premium'].forEach(s => {
+  ['screen-input','screen-chat','screen-loading','screen-result','screen-premium'].forEach(s => {
     document.getElementById(s).style.display = 'none';
   });
   document.getElementById(id).style.display = 'block';
@@ -486,6 +529,200 @@ function selectGender(g) {
   state.gender = g;
   document.getElementById('btn-male').classList.toggle('active', g === '남');
   document.getElementById('btn-female').classList.toggle('active', g === '여');
+}
+
+function goToChat() {
+  const year = document.getElementById('inp-year').value.trim();
+  const month = document.getElementById('inp-month').value;
+  const day = document.getElementById('inp-day').value.trim();
+  if (!year || !month || !day) { showError('생년월일을 입력해주세요.'); return; }
+  if (!state.gender) { showError('성별을 선택해주세요.'); return; }
+  state.name = document.getElementById('inp-name').value.trim() || '고객';
+  state.year = year; state.month = month; state.day = day;
+  state.hour = document.getElementById('inp-hour').value;
+  hideError();
+  chatHistory.length = 0;
+  chatTurn = 0;
+  showScreen('screen-chat');
+  renderChatProgress();
+  addAiMessage(FIRST_QUESTION);
+}
+
+function renderChatProgress() {
+  const wrap = document.getElementById('chat-progress-wrap');
+  let html = '';
+  for (let i = 0; i < MAX_TURNS; i++) {
+    const cls = i < chatTurn ? 'done' : i === chatTurn ? 'active' : '';
+    html += `<div class="chat-step-dot ${cls}">${i < chatTurn ? '✓' : i+1}</div>`;
+    if (i < MAX_TURNS - 1) html += '<div class="chat-step-line"></div>';
+  }
+  wrap.innerHTML = html;
+}
+
+function addAiMessage(text) {
+  chatHistory.push({ role: 'ai', text });
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble-wrap';
+  div.innerHTML = `<div class="chat-bubble ai">${text}</div>`;
+  wrap.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function addUserMessage(text) {
+  chatHistory.push({ role: 'user', text });
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble-wrap user';
+  div.innerHTML = `<div class="chat-bubble user">${text}</div>`;
+  wrap.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function showTyping() {
+  const wrap = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-bubble-wrap';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="chat-bubble ai"><div class="chat-typing"><span></span><span></span><span></span></div></div>`;
+  wrap.appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+async function sendChatMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const sendBtn = document.getElementById('chat-send-btn');
+  input.value = '';
+  input.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  addUserMessage(text);
+  chatTurn++;
+  renderChatProgress();
+
+  // 마지막 턴이면 분석 시작
+  if (chatTurn >= MAX_TURNS) {
+    document.getElementById('chat-hint').textContent = '고민 파악 완료! 사주 분석을 시작합니다...';
+    await sleep(800);
+    startAnalysisFromChat();
+    return;
+  }
+
+  // 4번째 턴이면 고정 마무리 질문
+  if (chatTurn === MAX_TURNS - 1) {
+    await sleep(600);
+    addAiMessage(LAST_QUESTION);
+    sendBtn.disabled = false;
+    return;
+  }
+
+  // Claude에게 다음 질문 생성 요청
+  showTyping();
+  try {
+    const historyText = chatHistory.map(h => (h.role === 'ai' ? '상담사' : '내담자') + ': ' + h.text).join('\n');
+    const nextQ = await callClaude(`당신은 사주 상담 전문가입니다. 내담자의 고민을 더 깊이 파악하기 위한 공감적이고 날카로운 후속 질문 1개만 해주세요.
+
+[대화 내용]
+${historyText}
+
+[규칙]
+- 질문 1개만 출력. 다른 말 없이 질문만.
+- 짧고 명확하게 (30자 이내)
+- 고민의 핵심을 파고드는 질문
+- 공감하는 톤으로`, 200);
+    hideTyping();
+    addAiMessage(nextQ.trim());
+  } catch(e) {
+    hideTyping();
+    addAiMessage('조금 더 구체적으로 말씀해 주실 수 있나요?');
+  }
+  sendBtn.disabled = false;
+}
+
+async function startAnalysisFromChat() {
+  // 채팅 내용을 고민으로 요약
+  state.concern = chatHistory.filter(h => h.role === 'user').map(h => h.text).join(' / ');
+  showScreen('screen-loading');
+  animateLoading();
+
+  // 음력이면 양력으로 변환
+  let solarYear = parseInt(state.year), solarMonth = parseInt(state.month), solarDay = parseInt(state.day);
+  if (state.calendarType === 'lunar') {
+    const solar = lunarToSolar(solarYear, solarMonth, solarDay, state.isLeapMonth);
+    solarYear = solar.year; solarMonth = solar.month; solarDay = solar.day;
+  }
+
+  const saju = calcSaju(solarYear, solarMonth, solarDay, state.hour);
+  const sajuText = `년주 ${saju.yearPillar}, 월주 ${saju.monthPillar}, 일주 ${saju.dayPillar}${saju.hourPillar ? ', 시주 ' + saju.hourPillar : ''}`;
+  const hourPillarJSON = saju.hourPillar ? `"${saju.hourPillar}"` : 'null';
+  const hourText = state.hour ? `태어난 시간: ${state.hour}` : '태어난 시간: 모름';
+  const chatSummary = chatHistory.map(h => (h.role === 'ai' ? 'Q' : 'A') + ': ' + h.text).join('\n');
+
+  const prompt = `당신은 날카롭고 실질적인 사주 명리학자입니다.
+
+[의뢰인 정보]
+- 이름: ${state.name}
+- 생년월일: ${solarYear}년 ${solarMonth}월 ${solarDay}일
+- ${hourText}
+- 성별: ${state.gender}성
+- 사주원국 (이미 계산됨, 절대 바꾸지 마세요): ${sajuText}
+- 현재 날짜: 2026년 3월 (올해는 2026년 丙午년, 의뢰인 나이 만 ${new Date().getFullYear() - solarYear}세)
+
+[의뢰인 고민 상담 내용]
+${chatSummary}
+
+[출력 지침]
+다음 형식으로 JSON만 출력하세요. 다른 말은 절대 하지 마세요.
+
+{
+  "sajuInfo": {
+    "yearPillar": "${saju.yearPillar}",
+    "monthPillar": "${saju.monthPillar}",
+    "dayPillar": "${saju.dayPillar}",
+    "hourPillar": ${hourPillarJSON},
+    "mainElement": "의뢰인의 주요 오행 1가지 (木/火/土/金/水 중)",
+    "title": "이 분석을 한 문장으로 압축한 제목"
+  },
+  "freeAnalysis": "아래 두 파트를 자연스럽게 이어서 작성하세요. 반드시 총 1200자 이상 1500자 이내로 작성.
+
+[파트1: 고민 진단 - 300~350자]
+이 고민이 지금 이 시기에 생긴 사주적 이유를 분석하세요. 오행과 천간지지를 구체적으로 언급하되, 전문 용어 뒤엔 반드시 쉬운 풀이를 괄호로 달아주세요.
+
+[파트2: 지금 당장 쓸 수 있는 조언 1가지 - 250~350자]
+'이번 주 안에', '이번 달 안에' 처럼 시간을 특정하고, 구체적인 행동 1가지를 알려주세요.
+
+마지막 문장: '이 고민이 반복되는 근본 이유와 구체적인 해결법을 제안해드릴게요. 진짜 운명해킹을 원하신다면 아래 버튼을 클릭해주세요.' 로 자연스럽게 마무리.
+- 한자 사용 시 반드시 한글을 먼저 쓰고 한자를 괄호에 표기.
+- **볼드** 마크다운 절대 사용 금지."
+}`;
+
+  try {
+    const result = await callClaude(prompt, 2500);
+    showFreeResult(result, saju);
+  } catch(e) {
+    showScreen('screen-input');
+    showError('분석 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+  }
 }
 
 function setCalendarType(type) {
