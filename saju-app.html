@@ -348,11 +348,11 @@ function calcMonthPillar(year, month, day) {
 }
 
 function calcDayPillar(year, month, day) {
-  let y = year, m = month;
+  let y = parseInt(year), m = parseInt(month), d = parseInt(day);
   if (m <= 2) { y--; m += 12; }
   const A = Math.floor(y / 100);
   const B = 2 - A + Math.floor(A / 4);
-  const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524;
+  const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524;
   const cg = ((JD + 9) % 10 + 10) % 10;
   const jj = ((JD + 1) % 12 + 12) % 12;
   return CHEONGAN[cg] + JIJI[jj];
@@ -373,9 +373,10 @@ function calcHourPillar(dayPillar, hourStr) {
 }
 
 function calcSaju(year, month, day, hourStr) {
-  const yearPillar = calcYearPillar(year, month, day);
-  const monthPillar = calcMonthPillar(year, month, day);
-  const dayPillar = calcDayPillar(year, month, day);
+  const y = parseInt(year), m = parseInt(month), d = parseInt(day);
+  const yearPillar = calcYearPillar(y, m, d);
+  const monthPillar = calcMonthPillar(y, m, d);
+  const dayPillar = calcDayPillar(y, m, d);
   const hourPillar = calcHourPillar(dayPillar, hourStr);
   return { yearPillar, monthPillar, dayPillar, hourPillar };
 }
