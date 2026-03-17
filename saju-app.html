@@ -963,6 +963,8 @@ async function startPremium() {
 }
 
 async function startPremiumWith(method) {
+  // 결제 전에 고민 값 state에 저장 (화면 전환 후에도 유지되도록)
+  state.concern = document.getElementById('inp-concern')?.value?.trim() || '';
   await requestPayment(method);
 }
 
@@ -1083,7 +1085,7 @@ function buildPartsUI() {
 }
 
 async function runPremiumAnalysis() {
-  const concern = document.getElementById('inp-concern').value.trim();
+  const concern = state.concern || document.getElementById('inp-concern')?.value?.trim() || '';
   const ps = state.sajuInfo;
   sessionStorage.setItem('saju_state', JSON.stringify({ name:state.name, year:state.year, month:state.month, day:state.day, hour:state.hour, gender:state.gender, concern, sajuInfo:ps }));
   for (let i = 0; i < PARTS.length; i++) {
