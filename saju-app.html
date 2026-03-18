@@ -80,7 +80,7 @@
   .volume-price span { font-size: 14px; color: var(--text-dim); font-weight: 400; font-family: 'Noto Sans KR', sans-serif; margin-left: 4px; }
   .blur-preview { background: var(--bg3); border-radius: 10px; padding: 16px; margin-bottom: 20px; position: relative; overflow: hidden; }
   .blur-preview-text { font-size: 13px; line-height: 1.9; color: var(--text-dim); filter: blur(4px); user-select: none; pointer-events: none; }
-  .blur-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, var(--bg3) 70%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; }
+  .blur-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 0%, var(--bg3) 70%); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; pointer-events: none; }
   .blur-overlay-text { font-size: 12px; color: var(--text-dim); letter-spacing: 0.5px; }
   .btn-premium { width: 100%; background: linear-gradient(135deg, var(--accent) 0%, #9b6fd4 100%); border: none; border-radius: 12px; padding: 18px; color: #fff; font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all 0.2s; }
   .btn-premium:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(123,94,167,0.4); }
@@ -974,8 +974,20 @@ async function requestPayment(method) {
   const paymentId = 'saju_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
   const orderName = '운명해킹 사주 심층분석 (' + (state.name || '고객') + '님)';
 
+  // ★ 모바일 redirect 후 복구를 위해 상태 저장
+  sessionStorage.setItem('pending_payment_id', paymentId);
+  sessionStorage.setItem('pending_payment_state', JSON.stringify({
+    name: state.name, year: state.year, month: state.month, day: state.day,
+    hour: state.hour, gender: state.gender, concern: state.concern, sajuInfo: state.sajuInfo
+  }));
+
   // 버튼 비활성화
   document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = true; });
+
+  // ★ 모바일 감지 (Android / iOS)
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  // ★ 결제 후 돌아올 URL
+  const redirectUrl = window.location.origin + window.location.pathname + '?payment_id=' + paymentId;
 
   try {
     const payParams = {
@@ -991,14 +1003,23 @@ async function requestPayment(method) {
         phoneNumber: '01000000000',
         email: 'customer@saju-app.com',
       },
+      // ★ 모바일: KG이니시스 redirect 필수, 카카오페이는 자동(REDIRECTION)
+      redirectUrl: isMobile ? redirectUrl : undefined,
     };
 
     if (isKakao) {
-      payParams.easyPay = { easyPayProvider: 'KAKAOPAY' };
+      // 카카오페이: PC=IFRAME, 모바일=REDIRECTION (PDF 문서 기준)
+      // windowType 미지정 시 자동 설정되나 명시적으로 지정
+      payParams.windowType = isMobile
+        ? { mobile: 'REDIRECTION' }
+        : { pc: 'IFRAME' };
+      // easyPayProvider는 카카오페이 자체가 간편결제사라 비워도 되지만 명시
+      payParams.easyPay = {};
     }
 
     const response = await window.PortOne.requestPayment(payParams);
 
+    // 모바일은 redirect로 페이지 이동하므로 여기까지 오지 않음
     if (response && response.code !== undefined) {
       document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
       if (response.code === 'FAILURE_TYPE_PG') {
@@ -1008,7 +1029,7 @@ async function requestPayment(method) {
       return;
     }
 
-    // 결제 성공 → 검증 후 분석 시작
+    // PC: 결제 성공 → 바로 검증 후 분석
     await verifyAndStartAnalysis(paymentId);
 
   } catch(e) {
@@ -1017,6 +1038,23 @@ async function requestPayment(method) {
     document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
   }
 }
+
+// ★ 모바일 redirect 후 결제 완료 자동 처리
+window.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const pendingId = urlParams.get('payment_id');
+  if (pendingId) {
+    // 저장된 사용자 상태 복구
+    const savedState = sessionStorage.getItem('pending_payment_state');
+    if (savedState) {
+      try { Object.assign(state, JSON.parse(savedState)); } catch(e) {}
+    }
+    // URL에서 payment_id 제거 (뒤로가기 중복 결제 방지)
+    history.replaceState({}, '', window.location.pathname);
+    // 검증 후 분석 시작
+    verifyAndStartAnalysis(pendingId);
+  }
+});
 
 async function verifyAndStartAnalysis(paymentId) {
   try {
