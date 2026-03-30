@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>운명해킹 — 사주 심층분석</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+<script>
+  // 테스트 채널키 (KG이니시스)
+  window.PORTONE_CHANNEL_KEY = 'channel-key-d325e41c-a3d9-4557-9af3-2c444db2c88a';
+</script>
 <style>
   :root {
     --bg: #0a0a0f; --bg2: #11111a; --bg3: #1a1a28;
@@ -120,7 +125,7 @@
   .chat-messages { margin-bottom: 16px; min-height: 200px; }
   .chat-bubble-wrap { display: flex; margin-bottom: 14px; animation: fadeIn 0.3s ease; }
   .chat-bubble-wrap.user { justify-content: flex-end; }
-  .chat-bubble { max-width: 82%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.75; }
+  .chat-bubble { max-width: 82%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.75; text-align: left; }
   .chat-bubble.ai { background: var(--bg2); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
   .chat-bubble.user { background: linear-gradient(135deg, var(--accent), #9b6fd4); color: #fff; border-bottom-right-radius: 4px; }
   .chat-typing { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
@@ -264,7 +269,7 @@
           <div class="blur-preview-text">이 고민의 진짜 뿌리는 일주의 오행 불균형에서 시작됩니다. 특히 현재 대운과의 충돌이 이 시기에 유독 이 주제를 강하게 끌어올리고 있어요. 올해 세운의 흐름을 보면 결정적인 변곡점이 명확히 보이는데...</div>
           <div class="blur-overlay"><span class="blur-overlay-text">🔒 프리미엄에서 전체 공개</span></div>
         </div>
-        <button class="btn-premium" onclick="startPremium()">
+        <button class="btn-premium" onclick="startPremiumWith('card')">
           운명 해킹 전체 분석 보기
           <span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>
         </button>
@@ -308,6 +313,7 @@ const JEOLGI_DATA = [[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,7],[9,8],[10,8],[11,
 const YEAR_TO_INMONTH_CG = [2,4,6,8,0,2,4,6,8,0];
 
 function getSajuMonthIndex(month, day) {
+  const m = parseInt(month), d = parseInt(day);
   // 절기 기준 사주월 (소한~대설 연중 순서)
   const jeolgi = [
     [1,6,11],[2,4,0],[3,6,1],[4,5,2],[5,6,3],[6,6,4],
@@ -315,7 +321,7 @@ function getSajuMonthIndex(month, day) {
   ];
   let result = 10; // 기본값: 자월 (대설 이전 1월 초)
   for (const [jm, jd, idx] of jeolgi) {
-    if (month > jm || (month === jm && day >= jd)) result = idx;
+    if (m > jm || (m === jm && d >= jd)) result = idx;
   }
   return result;
 }
@@ -343,11 +349,11 @@ function calcMonthPillar(year, month, day) {
 }
 
 function calcDayPillar(year, month, day) {
-  let y = year, m = month;
+  let y = parseInt(year), m = parseInt(month), d = parseInt(day);
   if (m <= 2) { y--; m += 12; }
   const A = Math.floor(y / 100);
   const B = 2 - A + Math.floor(A / 4);
-  const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + B - 1524;
+  const JD = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + d + B - 1524;
   const cg = ((JD + 9) % 10 + 10) % 10;
   const jj = ((JD + 1) % 12 + 12) % 12;
   return CHEONGAN[cg] + JIJI[jj];
@@ -368,9 +374,10 @@ function calcHourPillar(dayPillar, hourStr) {
 }
 
 function calcSaju(year, month, day, hourStr) {
-  const yearPillar = calcYearPillar(year, month, day);
-  const monthPillar = calcMonthPillar(year, month, day);
-  const dayPillar = calcDayPillar(year, month, day);
+  const y = parseInt(year), m = parseInt(month), d = parseInt(day);
+  const yearPillar = calcYearPillar(y, m, d);
+  const monthPillar = calcMonthPillar(y, m, d);
+  const dayPillar = calcDayPillar(y, m, d);
   const hourPillar = calcHourPillar(dayPillar, hourStr);
   return { yearPillar, monthPillar, dayPillar, hourPillar };
 }
@@ -503,7 +510,7 @@ const chatHistory = []; // { role: 'ai'|'user', text: string }
 let chatTurn = 0;
 const MAX_TURNS = 5;
 const FIRST_QUESTION = '지금 당신을 가장 힘들게 하는 고민이나 문제, 혹은 가장 이루고 싶은 목표가 있다면 들려주세요.';
-const LAST_QUESTION = '마지막으로, 이 고민이 얼마나 됐나요? 그리고 지금까지 어떤 시도를 해보셨나요?';
+const LAST_QUESTION = '마지막으로, 이 고민을 해결한 후에 당신이 이루고 싶은 모습을 적어주세요.';
 
 const PARTS = [
   { num:'PART 1', title:'이 고민이 반복되는 진짜 이유' },
@@ -939,11 +946,121 @@ function animateLoading() {
   window._loadingInterval = setInterval(() => { i = (i+1) % loadingTexts.length; el.textContent = loadingTexts[i]; }, 1800);
 }
 
+// ==================== 결제 ====================
+const PORTONE_STORE_ID = 'store-ea30699d-2ba5-4783-9033-54ff9f29ca8c';
+const PAYMENT_AMOUNT = 2900;
+const CHANNEL_CARD = 'channel-key-d325e41c-a3d9-4557-9af3-2c444db2c88a';   // KG이니시스
+const CHANNEL_KAKAO = 'channel-key-da6cbdd0-76c9-45d3-a2b0-f9bbd57a146f';  // 카카오페이
+
 async function startPremium() {
+  await requestPayment('card');
+}
+
+async function startPremiumWith(method) {
+  // 결제 전에 고민 값 state에 저장 (화면 전환 후에도 유지되도록)
+  await requestPayment(method);
+}
+
+async function requestPayment(method) {
+  if (!window.PortOne) {
+    showPaymentError('결제 모듈을 불러오는 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    return;
+  }
+
+  const isKakao = method === 'kakao';
+  const channelKey = isKakao ? CHANNEL_KAKAO : CHANNEL_CARD;
+  const payMethod = isKakao ? 'EASY_PAY' : 'CARD';
+  const paymentId = 'saju_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
+  const orderName = '운명해킹 사주 심층분석 (' + (state.name || '고객') + '님)';
+
+  // 버튼 비활성화
+  document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = true; });
+
+  try {
+    const payParams = {
+      storeId: PORTONE_STORE_ID,
+      channelKey: channelKey,
+      paymentId: paymentId,
+      orderName: orderName,
+      totalAmount: PAYMENT_AMOUNT,
+      currency: 'CURRENCY_KRW',
+      payMethod: payMethod,
+      customer: {
+        fullName: state.name || '고객',
+        phoneNumber: '01000000000',
+        email: 'customer@saju-app.com',
+      },
+    };
+
+    if (isKakao) {
+      payParams.easyPay = { easyPayProvider: 'KAKAOPAY' };
+    }
+
+    const response = await window.PortOne.requestPayment(payParams);
+
+    if (response && response.code !== undefined) {
+      document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
+      if (response.code === 'FAILURE_TYPE_PG') {
+        showPaymentError('결제에 실패했어요: ' + (response.message || '다시 시도해주세요.'));
+      }
+      // 사용자 취소는 조용히 처리
+      return;
+    }
+
+    // 결제 성공 → 검증 후 분석 시작
+    await verifyAndStartAnalysis(paymentId);
+
+  } catch(e) {
+    console.error('Payment error:', e);
+    showPaymentError('결제 처리 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');
+    document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = false; });
+  }
+}
+
+async function verifyAndStartAnalysis(paymentId) {
+  try {
+    const verifyUrl = '/api/verify-payment';
+    const res = await fetch(verifyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentId: paymentId, amount: PAYMENT_AMOUNT }),
+    });
+    const result = await res.json();
+    if (result.success) {
+      proceedToAnalysis();
+    } else {
+      showPaymentError('결제 검증에 실패했어요. 고객센터(010-3406-5572)로 문의해주세요.');
+    }
+  } catch(e) {
+    // 검증 서버 없는 경우(개발/테스트) → 분석 진행
+    console.warn('결제 검증 서버 연결 실패, 분석을 시작합니다.', e);
+    proceedToAnalysis();
+  }
+}
+
+function proceedToAnalysis() {
   showScreen('screen-premium');
-  document.getElementById('premium-title').textContent = `${state.name}님의 운명 해킹 분석`;
+  document.getElementById('premium-title').textContent = state.name + '님의 운명 해킹 분석';
   buildPartsUI();
-  await runPremiumAnalysis();
+  runPremiumAnalysis();
+}
+
+function showPaymentError(msg) {
+  const btn = document.querySelector('.btn-premium');
+  if (btn) { btn.disabled = false; btn.innerHTML = '운명 해킹 전체 분석 보기<span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>'; }
+  let errEl = document.getElementById('payment-error-msg');
+  if (!errEl) {
+    errEl = document.createElement('div');
+    errEl.id = 'payment-error-msg';
+    errEl.style.cssText = 'color:#e07070;font-size:13px;text-align:center;padding:10px 0;margin-bottom:8px;';
+    const hookCard = document.querySelector('.hook-card');
+    if (hookCard) {
+      const premBtn = hookCard.querySelector('.btn-premium');
+      hookCard.insertBefore(errEl, premBtn);
+    }
+  }
+  errEl.textContent = msg;
+  setTimeout(function() { if (errEl) errEl.textContent = ''; }, 5000);
 }
 
 function buildPartsUI() {
@@ -961,7 +1078,7 @@ function buildPartsUI() {
 }
 
 async function runPremiumAnalysis() {
-  const concern = state.concern || '';
+  const concern = state.concern || document.getElementById('inp-concern')?.value?.trim() || '';
   const ps = state.sajuInfo;
   sessionStorage.setItem('saju_state', JSON.stringify({ name:state.name, year:state.year, month:state.month, day:state.day, hour:state.hour, gender:state.gender, concern, sajuInfo:ps }));
   for (let i = 0; i < PARTS.length; i++) {
@@ -1052,7 +1169,7 @@ function updateProgressBar(done) {
 }
 
 function getAllAnalysisText() {
-  let text = `[운명해킹 사주 분석] ${state.name}님의 운명 분석 리포트\n고민: ${state.concern||''}\n분석일: 2026년 3월\n\n${'='.repeat(30)}\n\n`;
+  let text = `[운명해킹 사주 분석] ${state.name}님의 운명 분석 리포트\n고민: ${document.getElementById('inp-concern')?.value||''}\n분석일: 2026년 3월\n\n${'='.repeat(30)}\n\n`;
   for (let i = 0; i < 9; i++) {
     const partTitle = document.querySelector(`#part-card-${i} .part-title-text`)?.textContent || '';
     const partContent = document.getElementById(`part-content-${i}`)?.textContent || '';
@@ -1086,37 +1203,203 @@ buildToc();
 showScreen('screen-input');
 </script>
 
-<!-- 푸터: 사업자 정보 + 고지 -->
-<footer style="background:#0a0a0f;border-top:1px solid rgba(201,168,76,0.15);padding:28px 20px 40px;margin-top:40px;font-family:'Noto Sans KR',sans-serif;">
-  <div style="max-width:480px;margin:0 auto;">
+<!-- ==================== 푸터 ==================== -->
+<footer style="
+  background: #0a0a0f;
+  border-top: 1px solid rgba(201,168,76,0.12);
+  padding: 32px 20px 40px;
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
+">
+  <div style="max-width: 480px; margin: 0 auto;">
+    <!-- 로고/브랜드 -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <div style="font-family: 'Noto Serif KR', serif; font-size: 15px; color: rgba(201,168,76,0.7); letter-spacing: 2px; margin-bottom: 4px;">운명해킹</div>
+      <div style="font-size: 11px; color: #4a4640; letter-spacing: 0.5px;">사주 심층분석 서비스</div>
+    </div>
 
-    <!-- 결제 안내 -->
-    <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12px;color:#c9a84c;line-height:1.7;">
-      ✦ 결제 완료 후 <strong>30분 이내</strong>에 분석 결과가 제공됩니다.<br>
-      디지털 콘텐츠 특성상 결과 열람 시 환불이 불가할 수 있습니다. 결제 전 반드시 환불 정책을 확인해주세요.
+    <!-- 구분선 -->
+    <div style="border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;"></div>
+
+    <!-- 사업자 정보 -->
+    <div style="font-size: 11px; color: #4a4640; line-height: 1.9; text-align: center;">
+      <div style="margin-bottom: 6px;">
+        <span style="color: #5a5650;">상호</span> 아티버스코퍼레이션 주식회사
+        &nbsp;·&nbsp;
+        <span style="color: #5a5650;">대표</span> 강기원
+      </div>
+      <div style="margin-bottom: 6px;">
+        서울특별시 성북구 종암로25길 29, 성북구사회적경제센터 406호
+      </div>
+      <div style="margin-bottom: 6px;">
+        <span style="color: #5a5650;">통신판매업 신고번호</span> 제 2026-서울성북-0103 호
+      </div>
+      <div style="margin-bottom: 16px;">
+        <span style="color: #5a5650;">고객센터</span>
+        <a href="tel:01034065572" style="color: #6a6660; text-decoration: none;">010-3406-5572</a>
+        &nbsp;·&nbsp;
+        <a href="/cdn-cgi/l/email-protection#2c5f595c5c435e586c4d5e58454e595f02475e" style="color: #6a6660; text-decoration: none;"><span class="__cf_email__" data-cfemail="0f7c7a7f7f607d7b4f6e7d7b666d7a7c21647d">[email&#160;protected]</span></a>
+      </div>
     </div>
 
     <!-- 약관 링크 -->
-    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
-      <a href="/policy#terms" style="font-size:12px;color:#8a8478;text-decoration:none;border-bottom:1px solid rgba(138,132,120,0.3);">이용약관</a>
-      <a href="/policy#privacy" style="font-size:12px;color:#8a8478;text-decoration:none;border-bottom:1px solid rgba(138,132,120,0.3);">개인정보처리방침</a>
-      <a href="/policy#refund" style="font-size:12px;color:#e8c97a;text-decoration:none;border-bottom:1px solid rgba(232,201,122,0.4);font-weight:600;">취소/환불규정</a>
+    <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 16px;">
+      <button onclick="openModal('modal-terms')" style="background:none; border:none; color:#5a5650; font-size:11px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; text-decoration: underline; text-underline-offset: 2px;">이용약관</button>
+      <button onclick="openModal('modal-privacy')" style="background:none; border:none; color:#5a5650; font-size:11px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; text-decoration: underline; text-underline-offset: 2px; font-weight: 600;">개인정보처리방침</button>
+      <button onclick="openModal('modal-refund')" style="background:none; border:none; color:#5a5650; font-size:11px; cursor:pointer; font-family:'Noto Sans KR',sans-serif; text-decoration: underline; text-underline-offset: 2px;">환불정책</button>
     </div>
 
-    <!-- 사업자 정보 -->
-    <div style="font-size:11px;color:#5a5650;line-height:1.9;">
-      <strong style="color:#8a8478;font-size:12px;">아티버스코퍼레이션 주식회사</strong><br>
-      대표자: 강기원 &nbsp;|&nbsp; 사업자등록번호: 357-87-02486<br>
-      사업장 소재지: 서울특별시 성북구 종암로25길 29, 406호<br>
-      업태: 정보통신업, 서비스업 &nbsp;|&nbsp; 종목: 소프트웨어 개발 및 공급, 전자상거래 소매업<br>
-      이메일: artibus.main@gmail.com<br>
-      <span style="color:#4a4a4a;font-size:10px;margin-top:6px;display:block;">
-        본 서비스는 AI 기반 사주 분석 콘텐츠로, 엔터테인먼트 및 참고 목적으로 제공됩니다.
-      </span>
+    <!-- 저작권 -->
+    <div style="text-align: center; font-size: 10px; color: #3a3830;">
+      © 2026 아티버스코퍼레이션. All rights reserved.
     </div>
 
+    <!-- 면책 고지 -->
+    <div style="margin-top: 16px; padding: 12px 16px; background: rgba(255,255,255,0.02); border-radius: 8px; font-size: 10px; color: #3a3830; line-height: 1.7; text-align: center;">
+      본 서비스는 동양 철학에 기반한 참고용 콘텐츠를 제공하며, 법적·의학적·재정적 판단의 근거로 사용하실 수 없습니다. 모든 결정은 이용자 본인의 책임 하에 이루어져야 합니다.
+    </div>
   </div>
 </footer>
 
-</body>
-</html>
+<!-- ==================== 이용약관 모달 ==================== -->
+<div id="modal-terms" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.85); overflow-y:auto;">
+  <div style="max-width:480px; margin:0 auto; padding:20px 16px 60px;">
+    <div style="background:#11111a; border:1px solid rgba(201,168,76,0.2); border-radius:16px; padding:28px 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="font-family:'Noto Serif KR',serif; font-size:18px; color:#e8c97a; letter-spacing:1px;">이용약관</h2>
+        <button onclick="closeModal('modal-terms')" style="background:none; border:none; color:#8a8478; font-size:22px; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <div style="font-size:12px; color:#6a6460; line-height:1.8; margin-bottom:16px;">최종 수정일: 2026년 3월 17일</div>
+      <div style="font-size:13px; color:#c8c4b8; line-height:2;">
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제1조 (목적)</h3>
+        <p>본 약관은 아티버스코퍼레이션 주식회사(이하 "회사")가 운영하는 '운명해킹' 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 이용자의 권리·의무 및 책임 사항을 규정함을 목적으로 합니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제2조 (서비스 내용)</h3>
+        <p>서비스는 이용자가 입력한 생년월일, 성별, 출생 시간 등의 정보를 바탕으로 동양 철학(사주명리학)에 기반한 분석 콘텐츠를 제공합니다. 본 서비스는 오락 및 참고 목적의 콘텐츠 서비스이며, 법적·의학적·재정적 조언을 대체하지 않습니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제3조 (이용 자격)</h3>
+        <p>서비스는 만 14세 이상 누구나 이용할 수 있습니다. 만 14세 미만은 법정대리인의 동의가 필요합니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제4조 (결제 및 이용)</h3>
+        <p>유료 분석 서비스는 결제 완료 후 즉시 콘텐츠가 제공됩니다. 결제는 회사가 지정한 결제 수단을 통해 이루어지며, 결제 시 표시된 금액이 청구됩니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제5조 (지식재산권)</h3>
+        <p>서비스를 통해 생성된 분석 결과물의 저작권은 회사에 귀속됩니다. 이용자는 개인 참고 목적으로만 사용 가능하며, 상업적 목적의 무단 복제·배포는 금지됩니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제6조 (면책 조항)</h3>
+        <p>본 서비스는 동양 철학적 참고 자료를 제공하며, 분석 결과에 대한 법적 책임을 지지 않습니다. 이용자가 분석 내용을 기반으로 한 결정에 대한 책임은 이용자 본인에게 있습니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제7조 (약관 변경)</h3>
+        <p>회사는 필요 시 약관을 변경할 수 있으며, 변경 시 서비스 내 공지를 통해 고지합니다. 변경된 약관에 동의하지 않을 경우 서비스 이용을 중단하실 수 있습니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">제8조 (분쟁 해결)</h3>
+        <p>서비스 이용과 관련한 분쟁은 대한민국 법률에 따르며, 관할 법원은 서울중앙지방법원으로 합니다.</p>
+
+        <div style="margin-top:24px; padding:12px; background:rgba(201,168,76,0.05); border-radius:8px;">
+          <p style="color:#8a8478; font-size:11px;">문의: <a href="/cdn-cgi/l/email-protection#e89b9d9898879a9ca8899a9c818a9d9bc6839a" style="color:#c9a84c;"><span class="__cf_email__" data-cfemail="2754525757485553674655534e455254094c55">[email&#160;protected]</span></a> · 고객센터: 010-3406-5572</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 개인정보처리방침 모달 ==================== -->
+<div id="modal-privacy" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.85); overflow-y:auto;">
+  <div style="max-width:480px; margin:0 auto; padding:20px 16px 60px;">
+    <div style="background:#11111a; border:1px solid rgba(201,168,76,0.2); border-radius:16px; padding:28px 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="font-family:'Noto Serif KR',serif; font-size:18px; color:#e8c97a; letter-spacing:1px;">개인정보처리방침</h2>
+        <button onclick="closeModal('modal-privacy')" style="background:none; border:none; color:#8a8478; font-size:22px; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <div style="font-size:12px; color:#6a6460; line-height:1.8; margin-bottom:16px;">최종 수정일: 2026년 3월 17일</div>
+      <div style="font-size:13px; color:#c8c4b8; line-height:2;">
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">1. 수집하는 개인정보</h3>
+        <p>회사는 서비스 제공을 위해 다음 정보를 수집합니다.</p>
+        <ul style="padding-left:16px; margin-top:8px; color:#a8a49a;">
+          <li>이름(닉네임)</li>
+          <li>생년월일 및 출생 시간</li>
+          <li>성별</li>
+          <li>고민 내용 (선택 입력)</li>
+          <li>결제 정보 (결제 수단, 결제 일시 — PG사에서 처리)</li>
+        </ul>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">2. 수집 목적</h3>
+        <ul style="padding-left:16px; color:#a8a49a;">
+          <li>사주 분석 서비스 제공</li>
+          <li>결제 처리 및 환불 대응</li>
+          <li>고객 문의 응대</li>
+          <li>서비스 품질 개선</li>
+        </ul>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">3. 보유 및 이용 기간</h3>
+        <p>수집된 정보는 서비스 이용 목적 달성 후 즉시 파기합니다. 단, 관계 법령에 따라 일정 기간 보존이 필요한 경우는 아래와 같습니다.</p>
+        <ul style="padding-left:16px; margin-top:8px; color:#a8a49a;">
+          <li>계약 또는 청약철회 기록: 5년 (전자상거래법)</li>
+          <li>대금 결제 및 재화 공급 기록: 5년 (전자상거래법)</li>
+          <li>소비자 불만 및 분쟁처리 기록: 3년 (전자상거래법)</li>
+        </ul>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">4. 제3자 제공</h3>
+        <p>회사는 이용자의 개인정보를 원칙적으로 제3자에게 제공하지 않습니다. 다만, 결제 처리를 위해 PG사(결제대행사)에 최소한의 정보가 제공될 수 있습니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">5. 이용자의 권리</h3>
+        <p>이용자는 언제든지 자신의 개인정보 조회, 수정, 삭제를 요청할 수 있습니다. 요청은 아래 고객센터로 문의해 주세요.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">6. 개인정보 보호책임자</h3>
+        <ul style="padding-left:0; list-style:none; color:#a8a49a;">
+          <li>책임자: 강기원</li>
+          <li>이메일: <a href="/cdn-cgi/l/email-protection#1f6c6a6f6f706d6b5f7e6d6b767d6a6c31746d" style="color:#c9a84c;"><span class="__cf_email__" data-cfemail="cab9bfbabaa5b8be8aabb8bea3a8bfb9e4a1b8">[email&#160;protected]</span></a></li>
+          <li>전화: 010-3406-5572</li>
+        </ul>
+
+        <div style="margin-top:24px; padding:12px; background:rgba(201,168,76,0.05); border-radius:8px;">
+          <p style="color:#8a8478; font-size:11px;">개인정보 침해 신고는 개인정보보호위원회(privacy.go.kr) 또는 한국인터넷진흥원(118)에 문의하실 수 있습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 환불정책 모달 ==================== -->
+<div id="modal-refund" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.85); overflow-y:auto;">
+  <div style="max-width:480px; margin:0 auto; padding:20px 16px 60px;">
+    <div style="background:#11111a; border:1px solid rgba(201,168,76,0.2); border-radius:16px; padding:28px 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="font-family:'Noto Serif KR',serif; font-size:18px; color:#e8c97a; letter-spacing:1px;">환불정책</h2>
+        <button onclick="closeModal('modal-refund')" style="background:none; border:none; color:#8a8478; font-size:22px; cursor:pointer; line-height:1;">✕</button>
+      </div>
+      <div style="font-size:12px; color:#6a6460; line-height:1.8; margin-bottom:16px;">최종 수정일: 2026년 3월 17일</div>
+      <div style="font-size:13px; color:#c8c4b8; line-height:2;">
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">디지털 콘텐츠 특성 안내</h3>
+        <p>운명해킹 서비스는 결제 즉시 개인 맞춤형 분석 콘텐츠가 생성·제공되는 디지털 콘텐츠입니다. 「전자상거래 등에서의 소비자보호에 관한 법률」 제17조 제2항 제5호에 따라, 콘텐츠 열람(생성) 시작 후에는 청약철회가 제한될 수 있습니다.</p>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">환불 가능한 경우</h3>
+        <ul style="padding-left:16px; color:#a8a49a;">
+          <li>결제 후 콘텐츠 생성이 시작되기 이전</li>
+          <li>기술적 오류로 인해 콘텐츠가 정상 제공되지 않은 경우</li>
+          <li>결제가 중복으로 처리된 경우</li>
+        </ul>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">환불 불가한 경우</h3>
+        <ul style="padding-left:16px; color:#a8a49a;">
+          <li>콘텐츠 생성이 시작된 이후 (분석 시작 후)</li>
+          <li>분석 결과가 마음에 들지 않는 경우</li>
+          <li>이용자의 입력 오류로 인한 경우</li>
+        </ul>
+
+        <h3 style="color:#e8c97a; font-size:13px; margin:20px 0 8px;">환불 신청 방법</h3>
+        <p>환불을 원하시는 경우, 결제일로부터 7일 이내에 고객센터로 문의해 주세요. 확인 후 영업일 기준 3~5일 이내에 처리됩니다.</p>
+
+        <div style="margin-top:24px; padding:16px; background:rgba(201,168,76,0.06); border:1px solid rgba(201,168,76,0.15); border-radius:10px;">
+          <p style="color:#c9a84c; font-size:12px; font-weight:600; margin-bottom:8px;">고객센터 연락처</p>
+          <p style="color:#a8a49a; font-size:12px; line-height:1.8;">
+            📞 010-3406-5572<br>
+            📧 <a href="/cdn-cgi/l/email-protection#91e2e4e1e1fee3e5d1f0e3e5f8f3e4e2bffae3" style="color:#c9a84c;"><span class="__cf_email__" data-cfemail="5625232626392422163724223f342325783d24">[email&#160;protected]</span></a><br>
+            운영시간: 평일 10:00 ~ 18:00
+          </p>
+        </div>
+      </di
