@@ -967,9 +967,6 @@ async function requestPayment(method) {
     return;
   }
 
-  const isKakao = method === 'kakao';
-  const channelKey = isKakao ? CHANNEL_KAKAO : CHANNEL_CARD;
-  const payMethod = isKakao ? 'EASY_PAY' : 'CARD';
   const paymentId = 'saju_' + Date.now() + '_' + Math.random().toString(36).substr(2,9);
   const orderName = '운명해킹 사주 심층분석 (' + (state.name || '고객') + '님)';
 
@@ -979,22 +976,17 @@ async function requestPayment(method) {
   try {
     const payParams = {
       storeId: PORTONE_STORE_ID,
-      channelKey: channelKey,
+      channelKey: CHANNEL_CARD,
       paymentId: paymentId,
       orderName: orderName,
       totalAmount: PAYMENT_AMOUNT,
       currency: 'CURRENCY_KRW',
-      payMethod: payMethod,
       customer: {
         fullName: state.name || '고객',
         phoneNumber: '01000000000',
         email: 'customer@saju-app.com',
       },
     };
-
-    if (isKakao) {
-      payParams.easyPay = { easyPayProvider: 'KAKAOPAY' };
-    }
 
     const response = await window.PortOne.requestPayment(payParams);
 
