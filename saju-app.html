@@ -1206,6 +1206,15 @@ function showError(msg) { const el = document.getElementById('error-msg'); el.te
 function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'block'; document.body.style.overflow = 'hidden'; }
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
+}
+
 buildToc();
 showScreen('screen-input');
 </script>
