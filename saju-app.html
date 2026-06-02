@@ -273,6 +273,14 @@
           운명 해킹 전체 분석 보기
           <span class="btn-premium-sub">2,900원 · 9파트 약 15,000자 완전 분석</span>
         </button>
+        <!-- TEST-ONLY: 결제 우회(무료 열람) 버튼 — 정식 운영 배포 전 반드시 제거할 것 -->
+        <button type="button" onclick="skipPaymentPreview()"
+          style="display:block; width:100%; margin-top:10px; background:none; border:none;
+                 color:#5a5650; font-size:11px; cursor:pointer; text-decoration:underline;
+                 text-underline-offset:2px; font-family:'Noto Sans KR',sans-serif;">
+          (테스트) 결제 없이 분석 미리보기
+        </button>
+        <!-- /TEST-ONLY -->
       </div>
     </div>
   </div>
@@ -988,6 +996,12 @@ async function requestPayment(method) {
   // 버튼 비활성화
   document.querySelectorAll('.btn-premium, .btn-kakaopay').forEach(b => { b.disabled = true; });
 
+  // 모바일 리디렉션 결제 대비: 결제창 호출 직전 상태 저장
+  sessionStorage.setItem('saju_state', JSON.stringify({
+    name: state.name, year: state.year, month: state.month, day: state.day,
+    hour: state.hour, gender: state.gender, concern: state.concern, sajuInfo: state.sajuInfo
+  }));
+
   try {
     const payParams = {
       storeId: PORTONE_STORE_ID,
@@ -997,6 +1011,7 @@ async function requestPayment(method) {
       totalAmount: PAYMENT_AMOUNT,
       currency: 'CURRENCY_KRW',
       payMethod: 'CARD',
+      redirectUrl: window.location.origin + window.location.pathname,
       customer: {
         fullName: state.name || '고객',
         phoneNumber: '01000000000',
@@ -1052,6 +1067,13 @@ function proceedToAnalysis() {
   buildPartsUI();
   runPremiumAnalysis();
 }
+
+// TEST-ONLY: 결제 없이 프리미엄 분석 진입 — 정식 운영 배포 전 반드시 제거할 것
+function skipPaymentPreview() {
+  state.concern = state.concern || document.getElementById('inp-concern')?.value?.trim() || '';
+  proceedToAnalysis();
+}
+// /TEST-ONLY
 
 function showPaymentError(msg) {
   const btn = document.querySelector('.btn-premium');
@@ -1207,6 +1229,35 @@ function showError(msg) { const el = document.getElementById('error-msg'); el.te
 function hideError() { document.getElementById('error-msg').style.display = 'none'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+async function handlePaymentReturn() {
+  const params = new URLSearchParams(window.location.search);
+  const returnedPaymentId = params.get('paymentId');
+  const code = params.get('code');
+
+  // 결제 복귀가 아니면 일반 진입
+  if (!returnedPaymentId && !code) return false;
+
+  // 저장해둔 상태 복원
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('saju_state') || '{}');
+    Object.assign(state, saved);
+  } catch (e) {}
+
+  // URL 쿼리 제거(새로고침/뒤로가기 시 재처리 방지)
+  history.replaceState(null, '', window.location.pathname);
+
+  // 실패 / 취소 → 결과 화면으로 복귀시켜 재시도 유도
+  if (code) {
+    showScreen('screen-result');
+    showPaymentError('결제에 실패했어요: ' + (params.get('message') || '다시 시도해주세요.'));
+    return true;
+  }
+
+  // 성공 → 서버 검증 후 분석 시작 (기존 함수 재사용)
+  await verifyAndStartAnalysis(returnedPaymentId);
+  return true;
+}
+
 function openModal(id) {
   const el = document.getElementById(id);
   if (el) { el.style.display = 'block'; document.body.style.overflow = 'hidden'; }
@@ -1217,7 +1268,9 @@ function closeModal(id) {
 }
 
 buildToc();
-showScreen('screen-input');
+handlePaymentReturn().then(function(handled) {
+  if (!handled) showScreen('screen-input');
+});
 </script>
 
 <!-- ==================== 푸터 ==================== -->
